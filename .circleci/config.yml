@@ -7,7 +7,7 @@ orbs:
         parameters:
           docker:
             type: string
-            default: 'circeci/openjdk-8' 
+            default: 'circleci/openjdk:8' 
             description: "Docker image to use for build"
           file-spec:
             type: string
