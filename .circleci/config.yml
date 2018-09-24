@@ -22,19 +22,11 @@ orbs:
         steps:
           - install
           - configure
-          - when:
-              condition: <<parameters.file-spec>> 
-              steps:
-                - upload-with-spec:
-                    source: <<parameters.source>>
-                    target: <<parameters.target>>
-                    file-spec: <<parameters.file-spec>> 
-          - when:
-              unless: <<parameters.file-spec>> 
-              steps:
-                - upload:
-                    source: <<parameters.source>>
-                    target: <<parameters.target>>
+          - upload:
+              source: <<parameters.source>>
+              target: <<parameters.target>>
+              file-spec: <<parameters.file-spec>> 
+         
         docker: 
           - image: <<parameters.docker>>
     commands:
@@ -53,16 +45,6 @@ orbs:
                 jfrog rt c rt-server-1 --url=${ARTIFACTORY_URL} --apikey=${ARTIFACTORY_API_KEY} --interactive=false
       upload:
         parameters:
-          source:
-            type: string 
-          target:
-            type: string 
-        steps:
-          - run:
-              name: Upload Assets with JFrog CLI
-              command: jfrog rt upload <<parameters.source>> <<parameters.target>> --build-name=${CIRCLE_PROJECT_REPONAME}   --build-number=${CIRCLE_BUILD_NUM}             
-      upload-with-spec:
-        parameters:
           file-spec:
             type: string
           source:
@@ -70,11 +52,19 @@ orbs:
           target:
             type: string 
         steps:
-          - run:
-              name: Upload Assets with JFrog CLI
-              command: jfrog rt upload <<parameters.source>> <<parameters.target>> --spec=<<parameters.file-spec>> --build-name=${CIRCLE_PROJECT_REPONAME}   --build-number=${CIRCLE_BUILD_NUM}    
-
-
+          - when:
+              condition: <<parameters.file-spec>> 
+              steps:
+                - run:
+                    name: Upload Assets with JFrog CLI
+                    command: jfrog rt upload <<parameters.source>> <<parameters.target>> --spec=<<parameters.file-spec>> --build-name=${CIRCLE_PROJECT_REPONAME}   --build-number=${CIRCLE_BUILD_NUM}    
+          - when:
+              unless: <<parameters.file-spec>> 
+              steps:
+                - run:
+                    name: Upload Assets with JFrog CLI
+                    command: jfrog rt upload <<parameters.source>> <<parameters.target>> --build-name=${CIRCLE_PROJECT_REPONAME}   --build-number=${CIRCLE_BUILD_NUM}             
+   
 workflows:
   version: 2
   test-orb:
