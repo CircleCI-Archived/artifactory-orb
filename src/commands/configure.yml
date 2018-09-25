@@ -1,0 +1,4 @@
+steps:
+  - run:
+      name: Configure JFrog CLI
+      command: jfrog rt c rt-server-1 --url=${ARTIFACTORY_URL} --apikey=${ARTIFACTORY_API_KEY} --interactive=false
