@@ -15,20 +15,20 @@ workflows:
 version: 2.1
 jobs:
   Test Upload:
-    steps:
-    - run:
-        name: Install JFrog CLI
-        command: |
-          curl -fL https://getcli.jfrog.io | sh
-          chmod a+x jfrog && sudo mv jfrog /usr/local/bin
-    - run:
-        name: Configure JFrog CLI
-        command: jfrog rt c rt-server-1 --url=${ARTIFACTORY_URL} --apikey=${ARTIFACTORY_API_KEY} --interactive=false
-    - run:
-        name: Upload Assets with JFrog CLI
-        command: jfrog rt upload test/artifact.jar repo/path --build-name=${CIRCLE_PROJECT_REPONAME}   --build-number=${CIRCLE_BUILD_NUM}
     docker:
     - image: circleci/openjdk:8
+    steps:
+    - run:
+        command: |-
+          curl -fL https://getcli.jfrog.io | sh
+          chmod a+x jfrog && sudo mv jfrog /usr/local/bin
+        name: Install JFrog CLI
+    - run:
+        command: jfrog rt c rt-server-1 --url=${ARTIFACTORY_URL} --apikey=${ARTIFACTORY_API_KEY} --interactive=false
+        name: Configure JFrog CLI
+    - run:
+        command: jfrog rt upload test/artifact.jar repo/path --build-name=${CIRCLE_PROJECT_REPONAME} --build-number=${CIRCLE_BUILD_NUM}
+        name: Upload Assets with JFrog CLI
 workflows:
   version: 2
   test-orb:

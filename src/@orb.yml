@@ -1,0 +1,2 @@
+version: 2.1 #feels weird this is needed in an orb file, whats the impact?
+description: An orb expressing the features of the JFrog Artifactory CLI
