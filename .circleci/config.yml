@@ -8,7 +8,7 @@ jobs:
     steps:
       - checkout
       - run: |
-          sudo echo "deb http://ppa.launchpad.net/rmescandon/yq/ubuntu xenial main" >> /etc/apt/sources.list.d/rmescandon-yq-jessie.list
+          sudo sh -c 'echo "deb http://ppa.launchpad.net/rmescandon/yq/ubuntu xenial main" >> /etc/apt/sources.list.d/rmescandon-yq-jessie.list'
           sudo apt update
           sudo apt install yq -y
       - run: |
