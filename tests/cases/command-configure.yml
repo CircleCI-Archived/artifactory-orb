@@ -24,8 +24,8 @@ jobs:
         command: |
           echo "arbritary commmand"
     - run:
-        name: Configure JFrog CLI
         command: jfrog rt c rt-server-1 --url=${ARTIFACTORY_URL} --apikey=${ARTIFACTORY_API_KEY} --interactive=false
+        name: Configure JFrog CLI
 workflows:
   version: 2
   workflow:

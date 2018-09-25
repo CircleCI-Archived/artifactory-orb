@@ -10,26 +10,35 @@ set -e
 
 
 function main {
-	assemble_inline
-
+	assemble_inline "artifactory" "inline.yml"
+	run_tests "inline.yml"
 }
 
 function assemble_inline {
-	NAMESPACE=$1
-	ORB=$2
-	OUTPUT=$3
+	ORB=$1
+	OUTPUT=$2
 	YML_DIR=`mktemp -d -t yml.XXXX`
 	ALL_FILES=()
 	for filename in src/commands/*.yml; do
 		command=$(basename ${filename})
-		echo $command
 		command="${command%.*}"
-		echo "converting $command into nested format"
-		echo '{"orbs":{"commands":{"'$command'":'$(yq r -j $filename)'}}}' | yq r - > $YML_DIR/${command}.yml
-		ALL_FILES+=($YML_DIR/${command}.yml)
+		echo "converting COMMAND $command into nested format"
+		echo '{"orbs":{"'$ORB'":{"commands":{"'$command'":'$(yq r -j $filename)'}}}}' | yq r - > $YML_DIR/command-${command}.yml
+		ALL_FILES+=($YML_DIR/command-${command}.yml)
 	done
+
+
+	for filename in src/jobs/*.yml; do
+		job=$(basename ${filename})
+		job="${job%.*}"
+		echo "converting JOB $job into nested format"
+		echo '{"orbs":{"'$ORB'":{"jobs":{"'$job'":'$(yq r -j $filename)'}}}}' | yq r - > $YML_DIR/job-${job}.yml
+		ALL_FILES+=($YML_DIR/job-${job}.yml)
+	done
+
 	echo "Merging ${ALL_FILES[*]}"
-	yq m ${ALL_FILES[*]}
+	echo "version: 2.1" > ${OUTPUT}
+	yq m ${ALL_FILES[*]} >> ${OUTPUT}
 }
 
 
@@ -39,6 +48,7 @@ function remove_files_in {
 
 
 function run_tests {
+	INLINE=$1
 	TMP_DIR=`mktemp -d -t orbs.XXXX`
 
 	fails=0
@@ -48,7 +58,7 @@ function run_tests {
 		set -e
 		tests=$((tests+1))
 		echo "Running Test: ${file%.yml}"
-		cat src/\@orb.yml > ${TMP_DIR}/temp-input.yml
+		cat ${INLINE} > ${TMP_DIR}/temp-input.yml
 		cat $file | sed -ne '/#given/,/#end given/p' | sed '1d;$d'>> ${TMP_DIR}/temp-input.yml
 		cat $file | sed -ne '/#then/,/#end then/p' | sed '1d;$d'> ${TMP_DIR}/expected.yml
 		circleci config process ${TMP_DIR}/temp-input.yml  2>${TMP_DIR}/temp-error.txt | sed '/# Original config.yml file:/q'| sed '$d' > ${TMP_DIR}/temp-output.yml 

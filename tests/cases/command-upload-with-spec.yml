@@ -27,8 +27,8 @@ jobs:
         command: |
           echo "arbritary commmand"
     - run:
+        command: jfrog rt upload test/artifact.jar repo/path --spec=spec.json --build-name=${CIRCLE_PROJECT_REPONAME} --build-number=${CIRCLE_BUILD_NUM}
         name: Upload Assets with JFrog CLI
-        command: jfrog rt upload test/artifact.jar repo/path --spec=spec.json --build-name=${CIRCLE_PROJECT_REPONAME}   --build-number=${CIRCLE_BUILD_NUM}
 workflows:
   version: 2
   workflow:

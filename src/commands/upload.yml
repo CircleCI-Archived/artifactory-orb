@@ -1,4 +1,3 @@
-
 parameters:
   file-spec:
     type: string

@@ -24,10 +24,10 @@ jobs:
         command: |
           echo "arbritary commmand"
     - run:
-        name: Install JFrog CLI
-        command: |
+        command: |-
           curl -fL https://getcli.jfrog.io | sh
           chmod a+x jfrog && sudo mv jfrog /usr/local/bin
+        name: Install JFrog CLI
 workflows:
   version: 2
   workflow:
