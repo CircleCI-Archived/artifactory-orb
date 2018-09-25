@@ -25,7 +25,7 @@ function assemble_inline {
 		echo $command
 		command="${command%.*}"
 		echo "converting $command into nested format"
-		echo '{"commands":{"'$command'":'$(yq r -j $filename)'}}' | yq r - > $YML_DIR/${command}.yml
+		echo '{"orbs":{"commands":{"'$command'":'$(yq r -j $filename)'}}}' | yq r - > $YML_DIR/${command}.yml
 		ALL_FILES+=($YML_DIR/${command}.yml)
 	done
 	echo "Merging ${ALL_FILES[*]}"
