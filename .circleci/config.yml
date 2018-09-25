@@ -9,6 +9,9 @@ jobs:
       - checkout
       - run: |
           curl https://raw.githubusercontent.com/CircleCI-Public/circleci-cli/master/install.sh --fail --show-error | sudo bash
+          sudo add-apt-repository ppa:rmescandon/yq
+          sudo apt update
+          sudo apt install yq -y
       - run:
           name: Validate
           command: circleci orb validate .circleci/orbs/artifactory.yml
