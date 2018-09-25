@@ -7,8 +7,10 @@ jobs:
     working_directory: ~/repo
     steps:
       - checkout
-      - run: |
-          curl https://raw.githubusercontent.com/CircleCI-Public/circleci-cli/master/install.sh --fail --show-error | sudo bash
+      - run: 
+          name: Install CircleCI CLI (the new one)
+          command: |
+            curl https://raw.githubusercontent.com/CircleCI-Public/circleci-cli/master/install.sh --fail --show-error | sudo bash
       - run:
           name: Pack and Validate
           command: |
