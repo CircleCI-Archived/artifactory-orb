@@ -7,6 +7,8 @@ workflows:
           name: Test Upload
           source: test/artifact.jar
           target: repo/path
+          file-spec: spec.json
+          docker: circleci/another-image:123
 #end given
 
 
@@ -23,16 +25,15 @@ jobs:
           chmod a+x jfrog && sudo mv jfrog /usr/local/bin
     - run:
         name: Configure JFrog CLI
-        command: |
-          jfrog rt c rt-server-1 --url=${ARTIFACTORY_URL} --apikey=${ARTIFACTORY_API_KEY} --interactive=false
+        command: jfrog rt c rt-server-1 --url=${ARTIFACTORY_URL} --apikey=${ARTIFACTORY_API_KEY} --interactive=false
     - run:
         name: Upload Assets with JFrog CLI
-        command: jfrog rt upload test/artifact.jar repo/path --build-name=${CIRCLE_PROJECT_REPONAME}   --build-number=${CIRCLE_BUILD_NUM}
+        command: jfrog rt upload test/artifact.jar repo/path --spec=spec.json --build-name=${CIRCLE_PROJECT_REPONAME}   --build-number=${CIRCLE_BUILD_NUM}
     docker:
-    - image: circleci/openjdk:8
+    - image: circleci/another-image:123
 workflows:
   version: 2
   test-orb:
     jobs:
     - Test Upload
-#end when
+#end then

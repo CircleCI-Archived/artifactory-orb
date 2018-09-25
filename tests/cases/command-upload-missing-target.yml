@@ -1,0 +1,19 @@
+#given
+jobs:
+  build:
+    docker:
+      - image: circleci/node:10
+    working_directory: ~/repo
+    steps:
+      - checkout
+      - run: |
+          echo "arbritary commmand"
+      - artifactory/upload:
+          source: test/artifact.jar
+#end given
+
+
+
+#then
+Error: Error calling upload: Missing required argument(s): file-spec, target
+#end then
