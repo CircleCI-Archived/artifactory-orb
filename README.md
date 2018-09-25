@@ -8,19 +8,56 @@ This orb will support the major features of the [JFrog CLI](https://www.jfrog.co
 
 To limit the permutations of variables, advanced use cases must pass a [`specs` file.](https://www.jfrog.com/confluence/display/CLI/CLI+for+JFrog+Artifactory#CLIforJFrogArtifactory-UsingFileSpecs)
 
-## Examples
+### Jobs
 
-Simple upload example
+- Upload - installs and configures CLI before calling upload command.
+
+#### Upload Job Example
+
+Uploading a .jar file created with maven
 ```
 version: 2.1
 workflows:
   version: 2
-  test-orb:
+  publish-jar:
     jobs:
       - artifactory/upload:
-          name: Test Upload
+          name: Upload Maven Artifact
           source: test/artifact.jar
           target: repo/path
+          file-spec: spec.json
+          pre-steps:
+          	# use pre-steps for any activities needed to generate the assets
+          	- checkout
+            - run: mvn package
+```
+
+
+### Commands
+
+- Upload - upload assets using `source` and `target` arguments
+- Install - install JFrog CLI
+- Configure - configure CLI to use `ARTIFACTORY_URL` and `ARTIFACTORY_API_KEY` for all interactions
+
+#### Custom CLI Command Example
+Install CLI and upload environment info.
+```
+version: 2.1
+jobs:
+  build:
+    docker:
+    - image: circleci/node:10
+    working_directory: ~/repo
+    steps:
+    - checkout
+    - run:
+        name: Install JFrog CLI
+        command: |
+          curl -fL https://getcli.jfrog.io | sh
+          chmod a+x jfrog && sudo mv jfrog /usr/local/bin
+    - run:
+        command: |
+          jfrog rt bce my-build ${CIRCLE_BUILD_NUM}
 ```
 
 ## Questions

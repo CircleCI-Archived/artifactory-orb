@@ -47,4 +47,6 @@ for file in tests/cases/*.yml; do
 	remove_files_in ${TMP_DIR}
 done
 echo "Ran $tests tests with $fails failures"
-exit $fails
+if [ $fails -gt 0 ];then
+	exit 1
+fi
