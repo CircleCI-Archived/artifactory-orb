@@ -14,8 +14,10 @@ jobs:
       - run: |
           curl https://raw.githubusercontent.com/CircleCI-Public/circleci-cli/master/install.sh --fail --show-error | sudo bash
       - run:
-          name: Validate
-          command: circleci orb validate .circleci/orbs/artifactory.yml
+          name: Pack and Validate
+          command: |
+            circleci config pack src/ > packed.yml
+            circleci orb validate packed.yml
       - run:
           name: Tests
           command: bash tests/runner.sh
