@@ -10,7 +10,7 @@ jobs:
       - run: |
           sudo sh -c 'echo "deb http://ppa.launchpad.net/rmescandon/yq/ubuntu xenial main" >> /etc/apt/sources.list.d/rmescandon-yq-jessie.list'
           sudo apt update
-          sudo apt install yq -y
+          sudo apt --allow-unauthenticated install yq -y
       - run: |
           curl https://raw.githubusercontent.com/CircleCI-Public/circleci-cli/master/install.sh --fail --show-error | sudo bash
       - run:
