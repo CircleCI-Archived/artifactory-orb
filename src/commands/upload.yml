@@ -11,10 +11,10 @@ steps:
       steps:
         - run:
             name: Upload Assets with JFrog CLI
-            command: jfrog rt upload <<parameters.source>> <<parameters.target>> --spec=<<parameters.file-spec>> --build-name=${CIRCLE_PROJECT_REPONAME}   --build-number=${CIRCLE_BUILD_NUM}
+            command: jfrog rt upload <<parameters.source>> <<parameters.target>> --spec=<<parameters.file-spec>> --build-name=${CIRCLE_PROJECT_REPONAME} --build-number=${CIRCLE_BUILD_NUM}
   - unless:
       condition: <<parameters.file-spec>> 
       steps:
         - run:
             name: Upload Assets with JFrog CLI
-            command: jfrog rt upload <<parameters.source>> <<parameters.target>> --build-name=${CIRCLE_PROJECT_REPONAME}   --build-number=${CIRCLE_BUILD_NUM}
+            command: jfrog rt upload <<parameters.source>> <<parameters.target>> --build-name=${CIRCLE_PROJECT_REPONAME} --build-number=${CIRCLE_BUILD_NUM}

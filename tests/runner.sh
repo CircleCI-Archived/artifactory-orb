@@ -17,28 +17,10 @@ function main {
 function assemble_inline {
 	ORB=$1
 	OUTPUT=$2
-	YML_DIR=`mktemp -d -t yml.XXXX`
-	ALL_FILES=()
-	for filename in src/commands/*.yml; do
-		command=$(basename ${filename})
-		command="${command%.*}"
-		echo "converting COMMAND $command into nested format"
-		echo '{"orbs":{"'$ORB'":{"commands":{"'$command'":'$(yq r -j $filename)'}}}}' | yq r - > $YML_DIR/command-${command}.yml
-		ALL_FILES+=($YML_DIR/command-${command}.yml)
-	done
-
-
-	for filename in src/jobs/*.yml; do
-		job=$(basename ${filename})
-		job="${job%.*}"
-		echo "converting JOB $job into nested format"
-		echo '{"orbs":{"'$ORB'":{"jobs":{"'$job'":'$(yq r -j $filename)'}}}}' | yq r - > $YML_DIR/job-${job}.yml
-		ALL_FILES+=($YML_DIR/job-${job}.yml)
-	done
-
-	echo "Merging ${ALL_FILES[*]}"
-	echo "version: 2.1" > ${OUTPUT}
-	yq m ${ALL_FILES[*]} >> ${OUTPUT}
+	echo "version: 2.1" > $OUTPUT
+	echo "orbs:" >> $OUTPUT
+	echo "  artifactory:" >> $OUTPUT
+	circleci config pack src | sed -e 's/^/    /'>> $OUTPUT
 }
 
 
