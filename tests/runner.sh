@@ -6,7 +6,7 @@
 
 set -e
 
-TMP_DIR=`mktemp -d orbs.XXXX`
+TMP_DIR=`mktemp -d -t orbs.XXXX`
 
 fails=0
 tests=0
