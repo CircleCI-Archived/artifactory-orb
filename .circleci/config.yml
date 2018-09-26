@@ -26,13 +26,13 @@ jobs:
           command: |
             circleci config pack src/ > packed.yml
             circleci orb validate packed.yml
-            circleci orb publish dev packed.yml eddiewebb artifactory ${CIRCLE_BRANCH}
+            circleci orb publish packed.yml eddiewebb/artifactory@dev:${CIRCLE_BRANCH} --token ${CIRCLE_API_TOKEN}
 
       - run:
           name: External Tests
           command: |
-            bash tests/runner.sh config import-dev eddiewebb artifactory inline.yml
-            bash tests/runner.sh test_against packed.yml
+            bash tests/runner.sh config import-dev eddiewebb artifactory import.yml
+            bash tests/runner.sh test_against import.yml
 
 
 
