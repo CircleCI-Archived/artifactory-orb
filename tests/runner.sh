@@ -16,7 +16,9 @@ runner.sh test_against filename - use filename as "orbs" section against all tes
 '
 
 
-
+#
+#  USes circleci config pack, but indents everything under an `orbs.ORBNAME` element so it may be inlined.
+#
 function assemble_inline {
 	ORB=$1
 	OUTPUT=$2
@@ -27,7 +29,9 @@ function assemble_inline {
 }
 
 
-
+#
+#   Adds `orbs:` section referencing the provided dev orb
+#
 function assemble_external {
 	NAMESPACE=$1
 	ORB=$2
