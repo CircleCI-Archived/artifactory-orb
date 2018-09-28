@@ -1,4 +1,3 @@
-#given
 jobs:
   build:
     docker:
@@ -10,10 +9,6 @@ jobs:
           echo "arbritary commmand"
       - artifactory/upload:
           source: test/artifact.jar
-#end given
-
-
-
-#then
-Error: Error calling upload: Missing required argument(s): file-spec, target
-#end then
+          target: repo/path
+          file-spec: spec.json
+version: 2.1

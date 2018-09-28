@@ -17,23 +17,25 @@ jobs:
             circleci config pack src/ > packed.yml
             circleci orb validate packed.yml
       - run:
-          name: Inline Tests
+          name: Install BATS (bash testing)
           command: |
-            bash tests/runner.sh config create-inline artifactory inline.yml
-            bash tests/runner.sh test_against inline.yml
+            cd /tmp && git clone https://github.com/bats-core/bats-core.git && cd bats-core
+            sudo ./install.sh /usr/local
+      - run:
+          name: Inline Tests using BATS
+          command: |
+            bats tests/example.bats
       - run:
           name: Publish Dev
           command: |
             circleci config pack src/ > packed.yml
             circleci orb validate packed.yml
             circleci orb publish packed.yml eddiewebb/artifactory@dev:${CIRCLE_BRANCH} --token ${CIRCLE_API_TOKEN}
-
       - run:
-          name: External Tests
+          name: Import Tests using BATS
           command: |
-            bash tests/runner.sh config import-dev eddiewebb artifactory import.yml
-            bash tests/runner.sh test_against import.yml
-
+            export BATS_IMPORT_DEV_ORB="eddiewebb/artifactory@dev:${CIRCLE_BRANCH}"
+            bats tests/example.bats
 
 
 workflows:

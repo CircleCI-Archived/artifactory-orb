@@ -1,0 +1,11 @@
+jobs:
+  build:
+    docker:
+      - image: circleci/node:10
+    working_directory: ~/repo
+    steps:
+      - checkout
+      - run: |
+          echo "arbritary commmand"
+      - artifactory/install
+version: 2.1

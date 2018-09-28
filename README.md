@@ -19,17 +19,14 @@ Uploading a .jar file created with maven
 version: 2.1
 workflows:
   version: 2
-  publish-jar:
+  publish:
     jobs:
       - artifactory/upload:
-          name: Upload Maven Artifact
+          name: Publish Maven Jar
+          build-steps:
+            - run: mvn install -B
           source: test/artifact.jar
           target: repo/path
-          file-spec: spec.json
-          pre-steps:
-          	# use pre-steps for any activities needed to generate the assets
-          	- checkout
-            - run: mvn package
 ```
 
 

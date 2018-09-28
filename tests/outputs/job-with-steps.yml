@@ -1,0 +1,32 @@
+version: 2
+jobs:
+  Test Upload:
+    docker:
+    - image: circleci/openjdk:8
+    steps:
+    - checkout
+    - run:
+        command: mvn install -B
+    - run:
+        command: |-
+          echo "Checking for existence of CLI"
+          jfrog -v
+          if [ $? -gt 0 ]; then
+            echo "Not found, installing latest"
+            curl -fL https://getcli.jfrog.io | sh
+            chmod a+x jfrog && sudo mv jfrog /usr/local/bin
+          else
+            echo "CLI exists, skipping install"
+          fi
+        name: Install JFrog CLI
+    - run:
+        command: jfrog rt c rt-server-1 --url=${ARTIFACTORY_URL} --apikey=${ARTIFACTORY_API_KEY} --interactive=false
+        name: Configure JFrog CLI
+    - run:
+        command: jfrog rt upload test/artifact.jar repo/path --build-name=${CIRCLE_PROJECT_REPONAME} --build-number=${CIRCLE_BUILD_NUM}
+        name: Upload Assets with JFrog CLI
+workflows:
+  version: 2
+  test-orb:
+    jobs:
+    - Test Upload

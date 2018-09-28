@@ -1,0 +1,10 @@
+workflows:
+  version: 2
+  test-orb:
+    jobs:
+      - artifactory/upload:
+          name: Test Upload
+          source: test/artifact.jar
+          target: repo/path
+          build-steps:
+            - run: mvn install -B
