@@ -1,5 +1,6 @@
 version: 2.1
 
+
 jobs:
   test-locally:
     docker:
@@ -42,6 +43,11 @@ jobs:
             circleci config pack src/ > packed.yml
             circleci orb validate packed.yml
             circleci orb publish packed.yml eddiewebb/artifactory@dev:${CIRCLE_BRANCH} --token ${CIRCLE_API_TOKEN}
+      - run:
+          name: Install BATS (bash testing)
+          command: |
+            cd /tmp && git clone https://github.com/bats-core/bats-core.git && cd bats-core
+            sudo ./install.sh /usr/local
       - run:
           name: Import Tests using BATS
           command: |
