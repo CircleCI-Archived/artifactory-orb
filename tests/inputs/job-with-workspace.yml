@@ -1,0 +1,9 @@
+workflows:
+  version: 2
+  test-orb:
+    jobs:
+      - artifactory/upload:
+          name: Test Upload
+          source: target/*.jar
+          target: folder
+          workspace-path: target
