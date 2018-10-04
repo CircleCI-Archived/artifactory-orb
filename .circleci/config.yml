@@ -24,7 +24,7 @@ jobs:
       - run:
           name: Inline Tests using BATS
           command: |
-            bats tests/example.bats
+            bats tests/config_tests.bats
       - run:
           name: Publish Dev
           command: |
@@ -35,7 +35,7 @@ jobs:
           name: Import Tests using BATS
           command: |
             export BATS_IMPORT_DEV_ORB="eddiewebb/artifactory@dev:${CIRCLE_BRANCH}"
-            bats tests/example.bats
+            bats tests/config_tests.bats
 
 
 workflows:
