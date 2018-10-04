@@ -1,7 +1,7 @@
 version: 2.1
 
 jobs:
-  test:
+  test-locally:
     docker:
       - image: circleci/node:10
     working_directory: ~/repo
@@ -25,6 +25,17 @@ jobs:
           name: Inline Tests using BATS
           command: |
             bats tests/config_tests.bats
+
+  test-dev:
+    docker:
+      - image: circleci/node:10
+    working_directory: ~/repo
+    steps:
+      - checkout
+      - run: 
+          name: Install CircleCI CLI (the new one)
+          command: |
+            curl https://raw.githubusercontent.com/CircleCI-Public/circleci-cli/master/install.sh --fail --show-error | sudo bash
       - run:
           name: Publish Dev
           command: |
@@ -37,11 +48,42 @@ jobs:
             export BATS_IMPORT_DEV_ORB="eddiewebb/artifactory@dev:${CIRCLE_BRANCH}"
             bats tests/config_tests.bats
 
+  publish:
+    docker:
+      - image: circleci/node:10
+    working_directory: ~/repo
+    steps:
+      - checkout
+      - run: 
+          name: Install CircleCI CLI (the new one)
+          command: |
+            curl https://raw.githubusercontent.com/CircleCI-Public/circleci-cli/master/install.sh --fail --show-error | sudo bash
+      - run:
+          name: Publish Dev
+          command: |
+            circleci config pack src/ > packed.yml
+            circleci orb validate packed.yml
+            circleci orb publish packed.yml eddiewebb/artifactory@v0.1.${CIRCLE_BUILD_NUM} --token ${CIRCLE_API_TOKEN}
+      - run:
+          name: Import Tests using BATS
+          command: |
+            export BATS_IMPORT_DEV_ORB="eddiewebb/artifactory@v0.1.${CIRCLE_BUILD_NUM}
+            bats tests/config_tests.bats
+
 
 workflows:
   version: 2
   test-orb:
     jobs:
-      - test
+      - test-locally
+      - test-dev:
+          requires:
+            - test-locally
+      - publish:
+          requires:
+            - test-dev
+          filters:
+            branches:
+              only: master
 
 
