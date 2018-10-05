@@ -11,4 +11,4 @@ jobs:
           source: test/artifact.jar
           target: repo/path
           file-spec: spec.json
-version: 2.1
+

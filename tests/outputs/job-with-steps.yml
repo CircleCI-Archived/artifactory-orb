@@ -10,6 +10,7 @@ jobs:
     - run:
         command: |-
           echo "Checking for existence of CLI"
+          set +e
           jfrog -v
           if [ $? -gt 0 ]; then
             echo "Not found, installing latest"

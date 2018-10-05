@@ -8,4 +8,3 @@ jobs:
       - run: |
           echo "arbritary commmand"
       - artifactory/install
-version: 2.1

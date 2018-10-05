@@ -47,7 +47,7 @@ function assemble_external {
 function assert_contains_text {
 	TEXT=$1
 	if [[ "$output" != *"${TEXT}"* ]]; then
-		echo "Expected $LINE, not found in:"
+		echo "Expected text \`$TEXT\`, not found in output (printed below)"
 		echo $output
 		return 1
 	fi		
