@@ -60,9 +60,16 @@ function assert_matches_file {
 	return $?
 }
 
-function only_run_integration {
+function requires_local_build {
 	run docker version
 	if [ $status -ne 0 ]; then
 		skip "Docker must be configured for this test to run"
 	fi
+
+	# hack to work for remote docker where config is not local
+	docker run --name lifter-${BATS_TEST_NUMBER} -v $(pwd):$(pwd) alpine:3.4 /bin/true #starts a docker container that immediately exits
+	docker cp $1 lifter-${BATS_TEST_NUMBER}:$(pwd)  # copies file from local job to remote docker, which is mounted host FS
+	docker rm lifter-${BATS_TEST_NUMBER} || true
+	# now CLI should see that local file!
 }
+
