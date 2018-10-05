@@ -126,11 +126,11 @@ function setup {
 
   # when
   # IMPORTANT ** circleci only mounts local directory, so our generated config file must live here.
-  circleci config process $CONFIG_FILE > $CONFIG_FILE-processed
+  circleci config process $CONFIG_FILE > local.yml
 
-  requires_local_build $CONFIG_FILE-processed
+  requires_local_build local.yml
   
-  run circleci build -c $CONFIG_FILE-processed
+  run circleci build -c local.yml
 
   # then
   assert_contains_text 'Checking for existence of CLI'
