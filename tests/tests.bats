@@ -120,29 +120,30 @@ function setup {
 
 
 @test "Command: install logic skips if aleady installed" {
-  requires_local_build
-  
 
   # given
   print_config tests/inputs/command-install.yml > $CONFIG_FILE
 
   # when
   # IMPORTANT ** circleci only mounts local directory, so our generated config file must live here.
-  circleci config process $CONFIG_FILE > temp-config.yml
-  run circleci build -c temp-config.yml
-  rm temp-config.yml
+  circleci config process $CONFIG_FILE > $CONFIG_FILE-processed
+
+  requires_local_build $CONFIG_FILE-processed
+  
+  run circleci build -c $CONFIG_FILE-processed
 
   # then
   assert_contains_text 'Checking for existence of CLI'
   assert_contains_text 'Not found, installing latest'
 }
 
+
+
+
+
 @test "Command: configure command prints nice warnings if envars missing " {
   
-
   skip
-
-
 
   # given
   print_config tests/inputs/command-configure.yml > $CONFIG_FILE
