@@ -60,7 +60,7 @@ function assert_matches_file {
 	return $?
 }
 
-function only_run_integration {
+function requires_local_build {
 	run docker version
 	if [ $status -ne 0 ]; then
 		skip "Docker must be configured for this test to run"

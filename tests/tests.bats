@@ -120,7 +120,7 @@ function setup {
 
 
 @test "Command: install logic skips if aleady installed" {
-  only_run_integration
+  requires_local_build
   
 
   # given
