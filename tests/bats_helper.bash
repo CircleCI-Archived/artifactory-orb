@@ -61,7 +61,7 @@ function assert_matches_file {
 }
 
 function only_run_integration {
-	run docker -v
+	run docker version
 	if [ $status -ne 0 ]; then
 		skip "Docker must be configured for this test to run"
 	fi

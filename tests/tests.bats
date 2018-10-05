@@ -1,7 +1,10 @@
 #!/usr/bin/env bats
 
-load config_helper
+# load custom assertions and functions
+load bats_helper
 
+
+# setup is run beofre each test
 function setup {
 	CONFIG_FILE=${BATS_TMPDIR}/packed_config-${BATS_TEST_NUMBER} #`mktemp -t packed_config`
 	echo "using temp file $CONFIG_FILE"
@@ -9,6 +12,7 @@ function setup {
   # the name used in example config files.
   INLINE_ORB_NAME="artifactory"
 }
+
 
 
 @test "Command: Configure Command generates valid step" {

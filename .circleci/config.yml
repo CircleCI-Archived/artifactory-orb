@@ -32,7 +32,7 @@ jobs:
       - run:
           name: Inline Tests using BATS
           command: |
-            bats tests/config_tests.bats
+            bats tests
 
   test-dev:
     docker:
@@ -52,7 +52,7 @@ jobs:
           name: Import Tests using BATS
           command: |
             export BATS_IMPORT_DEV_ORB="sandbox/artifactory@dev:${CIRCLE_BRANCH}"
-            bats tests/config_tests.bats
+            bats tests
 
   publish:
     docker:
@@ -72,7 +72,7 @@ jobs:
           name: Import Tests using BATS
           command: |
             export BATS_IMPORT_DEV_ORB="sandbox/artifactory@0.1.${CIRCLE_BUILD_NUM}"
-            bats tests/config_tests.bats
+            bats tests
 
            
 commands:
