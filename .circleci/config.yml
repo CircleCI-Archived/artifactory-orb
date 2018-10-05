@@ -1,21 +1,19 @@
 version: 2.1
 
-commands:
-  install-bats:
-    description: installs the BATS bash testing tool
-    steps:
-      - run:
-          name: Install BATS (bash testing)
-          command: |
-            cd /tmp && git clone https://github.com/bats-core/bats-core.git && cd bats-core
-            sudo ./install.sh /usr/local
-  install-circleci:
-    description: installs the new CIrcleCI CLI with orb support
-    steps:
-      - run: 
-          name: Install CircleCI CLI (the new one)
-          command: |
-            curl https://raw.githubusercontent.com/CircleCI-Public/circleci-cli/master/install.sh --fail --show-error | sudo bash
+workflows:
+  version: 2
+  test-orb:
+    jobs:
+      - test-locally
+      - test-dev:
+          requires:
+            - test-locally
+      - publish:
+          requires:
+            - test-dev
+          filters:
+            branches:
+              only: master
 
 jobs:
   test-locally:
@@ -76,20 +74,23 @@ jobs:
             export BATS_IMPORT_DEV_ORB="eddiewebb/artifactory@0.1.${CIRCLE_BUILD_NUM}"
             bats tests/config_tests.bats
 
+           
+commands:
+  install-bats:
+    description: installs the BATS bash testing tool
+    steps:
+      - run:
+          name: Install BATS (bash testing)
+          command: |
+            cd /tmp && git clone https://github.com/bats-core/bats-core.git && cd bats-core
+            sudo ./install.sh /usr/local
+  install-circleci:
+    description: installs the new CIrcleCI CLI with orb support
+    steps:
+      - run: 
+          name: Install CircleCI CLI (the new one)
+          command: |
+            curl https://raw.githubusercontent.com/CircleCI-Public/circleci-cli/master/install.sh --fail --show-error | sudo bash
 
-workflows:
-  version: 2
-  test-orb:
-    jobs:
-      - test-locally
-      - test-dev:
-          requires:
-            - test-locally
-      - publish:
-          requires:
-            - test-dev
-          filters:
-            branches:
-              only: master
 
 
