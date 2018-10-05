@@ -59,3 +59,10 @@ function assert_matches_file {
 	echo "${output}" | sed '/# Original config.yml file:/q' | sed '$d' | diff -B $FILE -
 	return $?
 }
+
+function only_run_integration {
+	run docker -v
+	if [ $status -ne 0 ]; then
+		skip "Docker must be configured for this test to run"
+	fi
+}

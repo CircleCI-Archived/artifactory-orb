@@ -3,7 +3,7 @@
 load config_helper
 
 function setup {
-	CONFIG_FILE=${BATS_TMPDIR}/packed_config #`mktemp -t packed_config`
+	CONFIG_FILE=${BATS_TMPDIR}/packed_config-${BATS_TEST_NUMBER} #`mktemp -t packed_config`
 	echo "using temp file $CONFIG_FILE"
 
   # the name used in example config files.
@@ -116,6 +116,9 @@ function setup {
 
 
 @test "Command: install logic skips if aleady installed" {
+  only_run_integration
+  
+
   # given
   print_config tests/inputs/command-install.yml > $CONFIG_FILE
 
@@ -136,7 +139,7 @@ function setup {
   skip
 
 
-  
+
   # given
   print_config tests/inputs/command-configure.yml > $CONFIG_FILE
 
