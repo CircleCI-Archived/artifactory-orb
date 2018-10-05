@@ -127,10 +127,9 @@ function setup {
   # when
   # IMPORTANT ** circleci only mounts local directory, so our generated config file must live here.
   circleci config process $CONFIG_FILE > local.yml
-
-  requires_local_build local.yml
-  
+  requires_local_build local.yml # copies our local file to remote docker.
   run circleci build -c local.yml
+  rm local.yml
 
   # then
   assert_contains_text 'Checking for existence of CLI'

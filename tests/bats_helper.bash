@@ -67,9 +67,9 @@ function requires_local_build {
 	fi
 
 	# hack to work for remote docker where config is not local
-	docker run --name lifter-${BATS_TEST_NUMBER} -v $(pwd):$(pwd) alpine:3.4 sleep 10 #starts a docker container with access to host FS, should live long enough for cp commay to suceeed
+	docker run --name lifter-${BATS_TEST_NUMBER} -v $(pwd):$(pwd) alpine:3.4 /bin/true #starts a docker container that immediately exits
 	docker cp $1 lifter-${BATS_TEST_NUMBER}:$(pwd)  # copies file from local job to remote docker, which is mounted host FS
-	docker stop lifter-${BATS_TEST_NUMBER} && docker rm lifter-${BATS_TEST_NUMBER}
+	docker rm lifter-${BATS_TEST_NUMBER} || true
 	# now CLI should see that local file!
 }
 
