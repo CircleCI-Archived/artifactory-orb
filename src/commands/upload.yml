@@ -1,6 +1,7 @@
 parameters:
   file-spec:
     type: string
+    default: ""
   source:
     type: string 
   target:
