@@ -92,7 +92,7 @@ jobs:
           name: Trigger test project
           command: |
             curl -X POST --header "Content-Type: application/json"  -d '{"branch":"smoke-test"}' https://circleci.com/api/v1.1/project/github/eddiewebb/artifactory-orb-test/build?circle-token=${CIRCLE_API_TOKEN}
-      
+            sleep 10 # API does not return Job #, wait a bit t enure it bets queued .
       - run:
           name: Poll for result
           command: |
