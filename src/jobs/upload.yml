@@ -21,6 +21,20 @@ parameters:
   target:
     type: string
     description: "The remote path in artifactory, using pattern [repository_name]/[repository_path]"
+  build-integration:
+    type: boolean
+    default: true
+    description: "Should artifact be attached to a Build?"
+  build-name:
+    type: string
+    default: '${CIRCLE_PROJECT_REPONAME}' 
+    description: "Name used in Artifactory Build Integration"
+  include-git:
+    type: boolean
+    default: true
+  include-env:
+    type: boolean
+    default: true
 docker: 
   - image: <<parameters.docker>>
 steps:
@@ -39,4 +53,12 @@ steps:
       source: <<parameters.source>>
       target: <<parameters.target>>
       file-spec: <<parameters.file-spec>> 
+      build-name: <<parameters.build-name>>
+  - when:
+      condition: <<parameters.build-integration>> 
+      steps:
+        - build-integration:
+            build-name: <<parameters.build-name>>
+            include-git: <<parameters.include-git>>
+            include-env: <<parameters.include-env>>
 

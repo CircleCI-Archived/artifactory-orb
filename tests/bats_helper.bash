@@ -53,6 +53,15 @@ function assert_contains_text {
 	fi		
 }
 
+function assert_text_not_found {
+	TEXT=$1
+	if [[ "$output" == *"${TEXT}"* ]]; then
+		echo "Forbidden text \`$TEXT\`, was found in output.."
+		echo $output
+		return 1
+	fi		
+}
+
 function assert_matches_file {
 	FILE=$1
 

@@ -24,7 +24,7 @@ function setup {
   run circleci config process $CONFIG_FILE
 
   # then
-  assert_contains_text 'jfrog rt c rt-server-1 --url=${ARTIFACTORY_URL} --apikey=${ARTIFACTORY_API_KEY} --interactive=false'
+  assert_contains_text 'jfrog rt c --url=${ARTIFACTORY_URL} --apikey=${ARTIFACTORY_API_KEY} --interactive=false'
 }
 
 @test "Command: Install Command generates valid step" {
@@ -37,6 +37,45 @@ function setup {
 
   # then
   assert_contains_text 'curl -fL https://getcli.jfrog.io | sh'
+}
+
+@test "Job: Build-name can be overriden" {
+  # given
+  print_config tests/inputs/job-custom-build-name.yml > $CONFIG_FILE
+
+  # when
+  # run command creates a status and output variable
+  run circleci config process $CONFIG_FILE
+
+  # then
+  assert_contains_text 'jfrog rt bp mycustombuildname ${CIRCLE_BUILD_NUM}'        
+  assert_contains_text 'jfrog rt upload test/artifact.jar repo/path --build-name=mycustombuildname --build-number=${CIRCLE_BUILD_NUM}'        
+  assert_contains_text 'jfrog rt bag mycustombuildname ${CIRCLE_BUILD_NUM}'        
+  assert_contains_text 'jfrog rt bce mycustombuildname ${CIRCLE_BUILD_NUM}'  
+}
+
+@test "Job: Upload job includes build-integration" {
+  # given
+  print_config tests/inputs/job-with-spec.yml > $CONFIG_FILE
+
+  # when
+  # run command creates a status and output variable
+  run circleci config process $CONFIG_FILE
+
+  # then
+  assert_contains_text 'jfrog rt bp ${CIRCLE_PROJECT_REPONAME} ${CIRCLE_BUILD_NUM}'
+}
+
+@test "Job: Upload job's build-integration can be turned off" {
+  # given
+  print_config tests/inputs/job-no-builds.yml > $CONFIG_FILE
+
+  # when
+  # run command creates a status and output variable
+  run circleci config process $CONFIG_FILE
+
+  # then
+  assert_text_not_found 'jfrog rt bp ${CIRCLE_PROJECT_REPONAME} ${CIRCLE_BUILD_NUM}'
 }
 
 
