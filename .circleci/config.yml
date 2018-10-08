@@ -88,6 +88,20 @@ jobs:
       - image: circleci/node:10
     working_directory: ~/repo
     steps:
+
+      # the trigger build api does not return any workflow or build IDs, 
+      # so we naively assume we are the only thing to trigger jobs on a special branch.
+      - run:
+          name: Wait for any previous jobs to complete...
+          command: |
+            COUNT=$(curl https://circleci.com/api/v1.1/project/github/eddiewebb/artifactory-orb-test/tree/smoke-test?filter=running 2>/dev/null | jq length)
+            echo "Monitoring Build: $BUILD_URL for status"
+            echo "Visit https://circleci.com/api/v1.1/project/github/eddiewebb/artifactory-orb-test/tree/smoke-test?filter=running to see status"
+            while [ $COUNT -gt 0 ]; do
+              sleep 2
+              COUNT=$(curl https://circleci.com/api/v1.1/project/github/eddiewebb/artifactory-orb-test/tree/smoke-test?filter=running 2>/dev/null | jq length)
+            done
+            echo "No running builds on smoke-test branch, proceed with triggering"
       - run:
           name: Trigger test project
           command: |
@@ -111,7 +125,6 @@ jobs:
                   exit 1
                 fi
               else
-                echo "Test build still running.."
                 sleep 10
               fi
             done
