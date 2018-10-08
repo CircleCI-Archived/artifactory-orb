@@ -14,6 +14,12 @@ workflows:
           filters:
             branches:
               only: master
+      - smoke-test:
+          requires:
+            - publish
+          filters:
+            branches:
+              only: master
 
 jobs:
   test-locally:
@@ -70,13 +76,50 @@ jobs:
             circleci orb validate packed.yml
             circleci orb publish packed.yml sandbox/artifactory@0.1.${CIRCLE_BUILD_NUM} --token ${CIRCLE_API_TOKEN}
       - install-bats
+      - setup_remote_docker
       - run:
           name: Import Tests using BATS
           command: |
             export BATS_IMPORT_DEV_ORB="sandbox/artifactory@0.1.${CIRCLE_BUILD_NUM}"
             bats tests
 
-           
+  smoke-test:
+    docker:
+      - image: circleci/node:10
+    working_directory: ~/repo
+    steps:
+      - run:
+          name: Trigger test project
+          command: |
+            curl -X POST --header "Content-Type: application/json"  -d '{"branch":"smoke-test"}' https://circleci.com/api/v1.1/project/github/eddiewebb/artifactory-orb-test/build?circle-token=${CIRCLE_API_TOKEN}
+      
+      - run:
+          name: Poll for result
+          command: |
+            curl https://circleci.com/api/v1.1/project/github/eddiewebb/artifactory-orb-test/tree/smoke-test?limit=1 > build-result.json
+            BUILD_URL=$(cat build-result.json | jq -r '.[0].build_url')
+            echo "Monitoring Build: $BUILD_URL for status"
+            while true; do
+              curl https://circleci.com/api/v1.1/project/github/eddiewebb/artifactory-orb-test/tree/smoke-test?limit=1 > build-result.json
+              LIFECYCLE=$(cat build-result.json | jq -r '.[0].lifecycle')
+              if [ "$LIFECYCLE" == "finished" ];then
+                STATUS=$(cat build-result.json | jq -r '.[0].status')
+                if [ $STATUS == "success"];then 
+                  "Test project build successful."
+                  exit 0
+                else
+                  exit 1
+                fi
+              else
+                echo "Test build still running.."
+                sleep 10
+              fi
+            done
+
+
+
+
+
 commands:
   install-bats:
     description: installs the BATS bash testing tool
