@@ -63,7 +63,7 @@ function assert_matches_file {
 function requires_local_build {
 	run docker version
 	if [ $status -ne 0 ]; then
-		skip "Docker must be configured for this test to run"
+		return 1
 	fi
 
 	# hack to work for remote docker where config is not local

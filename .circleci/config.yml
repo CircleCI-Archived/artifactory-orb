@@ -32,7 +32,8 @@ jobs:
       - run:
           name: Inline Tests using BATS
           command: |
-            bats tests
+            # skip running full builds
+            bats tests/test_expansion.bats
 
   test-dev:
     docker:
