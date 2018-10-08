@@ -104,8 +104,8 @@ jobs:
               LIFECYCLE=$(cat build-result.json | jq -r '.[0].lifecycle')
               if [ "$LIFECYCLE" == "finished" ];then
                 STATUS=$(cat build-result.json | jq -r '.[0].status')
-                if [ $STATUS == "success"];then 
-                  "Test project build successful."
+                if [ "$STATUS" == "success" ];then 
+                  echo "Test project build successful."
                   exit 0
                 else
                   exit 1
