@@ -19,7 +19,10 @@ jobs:
           fi
         name: Install JFrog CLI
     - run:
-        command: jfrog rt c rt-server-1 --url=${ARTIFACTORY_URL} --apikey=${ARTIFACTORY_API_KEY} --interactive=false
+        command: |
+          : "${ARTIFACTORY_URL?Artifactory URL and API Key must be set as Environment variables before running this command.}"
+          : "${ARTIFACTORY_API_KEY?Artifactory URL and API Key must be set as Environment variables before running this command.}"
+          jfrog rt c rt-server-1 --url=${ARTIFACTORY_URL} --apikey=${ARTIFACTORY_API_KEY} --interactive=false
         name: Configure JFrog CLI
     - run:
         command: jfrog rt upload test/artifact.jar repo/path --spec=spec.json --build-name=${CIRCLE_PROJECT_REPONAME} --build-number=${CIRCLE_BUILD_NUM}
