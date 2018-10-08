@@ -1,8 +1,4 @@
 parameters:
-  executor:
-    type: executor
-    default: "default"
-    description: The name of a defined executor. Use this to override the docker image or environment.
   docker:
     type: string
     default: 'circleci/openjdk:8' 
