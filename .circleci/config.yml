@@ -42,8 +42,7 @@ jobs:
             bats tests/test_expansion.bats
 
   test-dev:
-    docker:
-      - image: circleci/node:10
+    machine: true
     working_directory: ~/repo
     steps:
       - checkout
@@ -63,8 +62,7 @@ jobs:
             bats tests
 
   publish:
-    docker:
-      - image: circleci/node:10
+    machine: true
     working_directory: ~/repo
     steps:
       - checkout

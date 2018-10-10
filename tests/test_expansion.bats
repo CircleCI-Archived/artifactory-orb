@@ -6,8 +6,9 @@ load bats_helper
 
 # setup is run beofre each test
 function setup {
-	CONFIG_FILE=${BATS_TMPDIR}/packed_config-${BATS_TEST_NUMBER} #`mktemp -t packed_config`
-	echo "using temp file $CONFIG_FILE"
+  INPUT_PROJECT_CONFIG=${BATS_TMPDIR}/input_config-${BATS_TEST_NUMBER} #`mktemp -t packed_config`
+  PACKED_PROJECT_CONFIG=${BATS_TMPDIR}/packed_config-${BATS_TEST_NUMBER} #`mktemp -t packed_config`
+	echo "#using temp file $PACKED_PROJECT_CONFIG"
 
   # the name used in example config files.
   INLINE_ORB_NAME="artifactory"
@@ -17,11 +18,11 @@ function setup {
 
 @test "Command: Configure Command generates valid step" {
   # given
-  print_config tests/inputs/command-configure.yml > $CONFIG_FILE
+  append_project_configuration tests/inputs/command-configure.yml > $PACKED_PROJECT_CONFIG
 
   # when
   # run command creates a status and output variable
-  run circleci config process $CONFIG_FILE
+  run circleci config process $PACKED_PROJECT_CONFIG
 
   # then
   assert_contains_text 'jfrog rt c --url=${ARTIFACTORY_URL} --apikey=${ARTIFACTORY_API_KEY} --interactive=false'
@@ -29,11 +30,11 @@ function setup {
 
 @test "Command: Install Command generates valid step" {
   # given
-  print_config tests/inputs/command-install.yml > $CONFIG_FILE
+  append_project_configuration tests/inputs/command-install.yml > $PACKED_PROJECT_CONFIG
 
   # when
   # run command creates a status and output variable
-  run circleci config process $CONFIG_FILE
+  run circleci config process $PACKED_PROJECT_CONFIG
 
   # then
   assert_contains_text 'curl -fL https://getcli.jfrog.io | sh'
@@ -41,26 +42,39 @@ function setup {
 
 @test "Job: Build-name can be overriden" {
   # given
-  print_config tests/inputs/job-custom-build-name.yml > $CONFIG_FILE
+  cat > ${INPUT_PROJECT_CONFIG} <<EOL
+workflows:
+  version: 2
+  test-orb:
+    jobs:
+      - artifactory/upload:
+          name: Test Upload
+          source: test/artifact.jar
+          target: repo/path
+          build-name: "mycustombuildname"
+
+EOL
+
+  append_project_configuration ${INPUT_PROJECT_CONFIG} > $PACKED_PROJECT_CONFIG
 
   # when
   # run command creates a status and output variable
-  run circleci config process $CONFIG_FILE
+  run circleci config process $PACKED_PROJECT_CONFIG
 
   # then
   assert_contains_text 'jfrog rt bp mycustombuildname ${CIRCLE_BUILD_NUM}'        
-  assert_contains_text 'jfrog rt upload test/artifact.jar repo/path --build-name=mycustombuildname --build-number=${CIRCLE_BUILD_NUM}'        
+  assert_contains_text 'jfrog rt upload test/artifact.jar repo/path --build-name=mycustombuildname'        
   assert_contains_text 'jfrog rt bag mycustombuildname ${CIRCLE_BUILD_NUM}'        
   assert_contains_text 'jfrog rt bce mycustombuildname ${CIRCLE_BUILD_NUM}'  
 }
 
 @test "Job: Upload job includes build-integration" {
   # given
-  print_config tests/inputs/job-with-spec.yml > $CONFIG_FILE
+  append_project_configuration tests/inputs/job-with-spec.yml > $PACKED_PROJECT_CONFIG
 
   # when
   # run command creates a status and output variable
-  run circleci config process $CONFIG_FILE
+  run circleci config process $PACKED_PROJECT_CONFIG
 
   # then
   assert_contains_text 'jfrog rt bp ${CIRCLE_PROJECT_REPONAME} ${CIRCLE_BUILD_NUM}'
@@ -68,11 +82,11 @@ function setup {
 
 @test "Job: Upload job's build-integration can be turned off" {
   # given
-  print_config tests/inputs/job-no-builds.yml > $CONFIG_FILE
+  append_project_configuration tests/inputs/job-no-builds.yml > $PACKED_PROJECT_CONFIG
 
   # when
   # run command creates a status and output variable
-  run circleci config process $CONFIG_FILE
+  run circleci config process $PACKED_PROJECT_CONFIG
 
   # then
   assert_text_not_found 'jfrog rt bp ${CIRCLE_PROJECT_REPONAME} ${CIRCLE_BUILD_NUM}'
@@ -81,11 +95,11 @@ function setup {
 
 @test "Job: Provided steps are included in config" {
   # given
-  print_config tests/inputs/job-with-steps.yml > $CONFIG_FILE
+  append_project_configuration tests/inputs/job-with-steps.yml > $PACKED_PROJECT_CONFIG
 
   # when
   # run command creates a status and output variable
-  run circleci config process $CONFIG_FILE
+  run circleci config process $PACKED_PROJECT_CONFIG
 
   # then
   assert_contains_text '- run: mvn install -B'
@@ -94,11 +108,11 @@ function setup {
 
 @test "Job: Workspace is attached when path provided" {
   # given
-  print_config tests/inputs/job-with-workspace.yml > $CONFIG_FILE
+  append_project_configuration tests/inputs/job-with-workspace.yml > $PACKED_PROJECT_CONFIG
 
   # when
   # run command creates a status and output variable
-  run circleci config process $CONFIG_FILE
+  run circleci config process $PACKED_PROJECT_CONFIG
 
   # then
   assert_contains_text 'attach_workspace:'
@@ -113,11 +127,11 @@ function setup {
 
 @test "Job: job with spec generates valid config" {
   # given
-  print_config tests/inputs/job-with-spec.yml > $CONFIG_FILE
+  append_project_configuration tests/inputs/job-with-spec.yml > $PACKED_PROJECT_CONFIG
 
   # when
   # run command creates a status and output variable
-  run circleci config process $CONFIG_FILE
+  run circleci config process $PACKED_PROJECT_CONFIG
 
   # then
   assert_matches_file tests/outputs/job-with-spec.yml
@@ -125,11 +139,11 @@ function setup {
 
 @test "Job: job without spec generates valid config" {
   # given
-  print_config tests/inputs/job-without-spec.yml > $CONFIG_FILE
+  append_project_configuration tests/inputs/job-without-spec.yml > $PACKED_PROJECT_CONFIG
 
   # when
   # run command creates a status and output variable
-  run circleci config process $CONFIG_FILE
+  run circleci config process $PACKED_PROJECT_CONFIG
 
   # then
   assert_matches_file tests/outputs/job-without-spec.yml
@@ -139,11 +153,11 @@ function setup {
 
 @test "Job: job with steps matches expected configuration" {
   # given
-  print_config tests/inputs/job-with-steps.yml > $CONFIG_FILE
+  append_project_configuration tests/inputs/job-with-steps.yml > $PACKED_PROJECT_CONFIG
 
   # when
   # run command creates a status and output variable
-  run circleci config process $CONFIG_FILE
+  run circleci config process $PACKED_PROJECT_CONFIG
 
   # then
   assert_matches_file tests/outputs/job-with-steps.yml

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 
-function print_config {
+function append_project_configuration {
 	if [ -z "$BATS_IMPORT_DEV_ORB" ]; then
 		echo "#Using \`inline\` orb assembly, to test against published orb, set BATS_IMPORT_DEV_ORB to fully qualified path" >&3
 		assemble_inline $1
@@ -69,16 +69,4 @@ function assert_matches_file {
 	return $?
 }
 
-function requires_local_build {
-	run docker version
-	if [ $status -ne 0 ]; then
-		return 1
-	fi
-
-	# hack to work for remote docker where config is not local
-	docker run --name lifter-${BATS_TEST_NUMBER} -v $(pwd):$(pwd) alpine:3.4 /bin/true #starts a docker container that immediately exits
-	docker cp $1 lifter-${BATS_TEST_NUMBER}:$(pwd)  # copies file from local job to remote docker, which is mounted host FS
-	docker rm lifter-${BATS_TEST_NUMBER} || true
-	# now CLI should see that local file!
-}
 

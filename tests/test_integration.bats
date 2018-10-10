@@ -6,8 +6,11 @@ load bats_helper
 
 # setup is run beofre each test
 function setup {
-	CONFIG_FILE=${BATS_TMPDIR}/packed_config-${BATS_TEST_NUMBER} #`mktemp -t packed_config`
-	echo "using temp file $CONFIG_FILE"
+  INPUT_PROJECT_CONFIG=${BATS_TMPDIR}/input_config-${BATS_TEST_NUMBER} #`mktemp -t packed_config`
+
+  # To make config avaulable for docker, it must in in project dir, which ismounted as volume
+  PACKED_PROJECT_CONFIG=IT-config-${BATS_TEST_NUMBER} #`mktemp -t packed_config`
+  echo "#using temp file $PACKED_PROJECT_CONFIG"
 
   # the name used in example config files.
   INLINE_ORB_NAME="artifactory"
@@ -25,50 +28,41 @@ function setup {
 
 @test "Command: install logic skips if aleady installed" {
   # given
-  print_config tests/inputs/command-install.yml > $CONFIG_FILE
-  circleci config process $CONFIG_FILE > local.yml
-  requires_local_build local.yml # copies our local file to remote docker.
+  append_project_configuration tests/inputs/command-install.yml > $INPUT_PROJECT_CONFIG
+  circleci config process $INPUT_PROJECT_CONFIG > ${PACKED_PROJECT_CONFIG}
 
   # when
   # IMPORTANT ** circleci only mounts local directory, so our generated config file must live here.
-  run circleci build -c local.yml
-  rm local.yml
+  run circleci build -c ${PACKED_PROJECT_CONFIG}
+  rm ${PACKED_PROJECT_CONFIG}
 
   # then
   assert_contains_text 'Checking for existence of CLI'
   assert_contains_text 'Not found, installing latest'
 }
 
-
-
-
-
 @test "Command: configure command prints nice warnings if envars missing " {
   # given
-  print_config tests/inputs/command-configure.yml > $CONFIG_FILE
-  circleci config process $CONFIG_FILE > local.yml
-  requires_local_build local.yml # copies our local file to remote docker.
+  append_project_configuration tests/inputs/command-configure.yml > $INPUT_PROJECT_CONFIG
+  circleci config process $INPUT_PROJECT_CONFIG > ${PACKED_PROJECT_CONFIG}
 
   # when
   # IMPORTANT ** circleci only mounts local directory, so our generated config file must live here.
-  run circleci build -c local.yml
+  run circleci build -c ${PACKED_PROJECT_CONFIG}
 
   # then
   assert_contains_text 'Artifactory URL and API Key must be set as Environment variables before running this command.'
   assert_contains_text 'ARTIFACTORY_URL'
 }
 
-
-
 @test "Command: configure command passes when env vars are set " {
   # given
-  print_config tests/inputs/command-configure.yml > $CONFIG_FILE
-  circleci config process $CONFIG_FILE > local.yml
-  requires_local_build local.yml # copies our local file to remote docker.
+  append_project_configuration tests/inputs/command-configure.yml > $INPUT_PROJECT_CONFIG
+  circleci config process $INPUT_PROJECT_CONFIG > ${PACKED_PROJECT_CONFIG}
 
   # when
   # IMPORTANT ** circleci only mounts local directory, so our generated config file must live here.
-  run circleci build -c local.yml --env ARTIFACTORY_URL="http://example.com" --env ARTIFACTORY_API_KEY="123" 
+  run circleci build -c ${PACKED_PROJECT_CONFIG} --env ARTIFACTORY_URL="http://example.com" --env ARTIFACTORY_API_KEY="123" 
 
   # then
   assert_contains_text 'Success!'
