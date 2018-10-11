@@ -54,7 +54,6 @@ jobs:
             circleci orb validate packed.yml
             circleci orb publish packed.yml sandbox/artifactory@dev:${CIRCLE_BRANCH} --token ${CIRCLE_API_TOKEN}
       - install-bats
-      - setup_remote_docker
       - run:
           name: Import Tests using BATS
           command: |
@@ -74,7 +73,6 @@ jobs:
             circleci orb validate packed.yml
             circleci orb publish packed.yml sandbox/artifactory@0.1.${CIRCLE_BUILD_NUM} --token ${CIRCLE_API_TOKEN}
       - install-bats
-      - setup_remote_docker
       - run:
           name: Import Tests using BATS
           command: |
