@@ -8,6 +8,9 @@ This orb will support the major features of the [JFrog CLI](https://www.jfrog.co
 
 To limit the permutations of variables, advanced use cases must pass a [`specs` file.](https://www.jfrog.com/confluence/display/CLI/CLI+for+JFrog+Artifactory#CLIforJFrogArtifactory-UsingFileSpecs)
 
+## Sample Project
+You can browse the configuration of [Artifactory Orb Test](https://github.com/eddiewebb/artifactory-orb-test/blob/smoke-test/.circleci/config.yml) for working examples.
+
 ### Jobs
 
 You can reference the provided Jobs from a 2.1 Workflows configuration stanza. Unless provided, the executor is a OpenJDK 8 Docker image.
