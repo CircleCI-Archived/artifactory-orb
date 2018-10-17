@@ -1,0 +1,48 @@
+parameters:
+  docker-steps:
+    type: steps
+    description: "Steps to authenticate with registry, tag and push images. See Examples`"
+  docker-tag:
+    type: string
+    description: "Local docker tag to use when issuing docker/rt commands. Should be create by docker-steps parameters"
+  repository:
+    type: string
+    description: "Remote repsository name in artifactory"
+  build-name:
+    type: string
+    default: '${CIRCLE_PROJECT_REPONAME}' 
+    description: "Name used in Artifactory Build Integration"
+  build-number:
+    type: string
+    default: '${CIRCLE_BUILD_NUM}' 
+    description: "Build Number used in Artifactory Build Integration"
+  build-integration:
+    type: boolean
+    default: true
+    description: "Should Artifactory 'Build Publish' task be executed"
+  include-git:
+    type: boolean
+    default: true
+  include-env:
+    type: boolean
+    default: true
+machine: true
+steps:
+  - checkout
+  - install
+  - configure
+  - steps: << parameters.docker-steps >>
+  - docker-publish:
+      build-name: <<parameters.build-name>>
+      build-number: <<parameters.build-number>>
+      docker-tag: <<parameters.docker-tag>>
+      repository: <<parameters.repository>>
+      build-integration: <<parameters.build-integration>>
+  - when:
+      condition: <<parameters.build-integration>> 
+      steps:
+        - build-integration:
+            build-name: <<parameters.build-name>>
+            build-number: <<parameters.build-number>>
+            include-git: <<parameters.include-git>>
+            include-env: <<parameters.include-env>>

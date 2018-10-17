@@ -1,0 +1,26 @@
+parameters:
+  docker-tag:
+    type: string
+  repository:
+    type: string
+  build-name:
+    type: string
+  build-number:
+    type: string
+  build-integration:
+    type: boolean
+    default: true
+steps:
+  - run:
+      name: Docker Push to JFrog Registry
+      command: |-
+        docker login -u ${ARTIFACTORY_USER} -p ${ARTIFACTORY_API_KEY} ${ARTIFACTORY_URL}
+        docker push <<parameters.docker-tag>>
+  - when:
+      condition: <<parameters.build-integration>> 
+      steps:
+        - run:
+            name: JFrog CLI Docker Publish
+            command: jfrog rt dp <<parameters.docker-tag>> <<parameters.repository>> -build-name=<<parameters.build-name>> --build-number=<<parameters.build-number>> 
+           
+ 
