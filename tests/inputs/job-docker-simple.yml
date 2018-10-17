@@ -1,0 +1,9 @@
+workflows:
+  version: 2
+  test-orb:
+    jobs:
+      - artifactory/docker-publish:
+          name: Docker Publish
+          docker-registry: mydomain-repo.jfrog.io
+          repository: docker-repo
+          docker-tag: mydomain-repo.jfrog.io/my-image:1.0-${CIRCLE_BUILD_NUM}
