@@ -1,7 +1,9 @@
 parameters:
   docker-steps:
     type: steps
-    description: "Steps to authenticate with registry, tag and push images. See Examples`"
+    description: "Steps to Build and Tag image, defaults to `docker build . -t <tag-name>`"
+    default: 
+      - run: docker build . -t ${DOCKER-TAG}
   docker-tag:
     type: string
     description: "Fully qualified(including reigstry) tag to use when issuing docker push commands."
@@ -30,11 +32,14 @@ parameters:
     type: boolean
     default: true
 machine: true
+environment:
+  DOCKER-TAG: <<parameters.docker-tag>>
 steps:
   - checkout
   - install
   - configure
   - steps: << parameters.docker-steps >>
+        
   - docker-publish:
       docker-registry: <<parameters.docker-registry>>
       build-name: <<parameters.build-name>>

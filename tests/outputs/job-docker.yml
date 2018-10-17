@@ -5,6 +5,8 @@ workflows:
     - Docker Publish
 jobs:
   Docker Publish:
+    environment:
+    - DOCKER-TAG: mydomain-repo.jfrog.io/my-image:1.0-${CIRCLE_BUILD_NUM}
     machine: true
     steps:
     - checkout
@@ -30,9 +32,7 @@ jobs:
           jfrog rt c --user=${ARTIFACTORY_USER} --url=${ARTIFACTORY_URL} --apikey=${ARTIFACTORY_API_KEY} --interactive=false
         name: Configure JFrog CLI
     - run:
-        command: docker pull hello-world
-    - run:
-        command: docker tag hello-world:latest mydomain-repo.jfrog.io/my-image:1.0-${CIRCLE_BUILD_NUM}
+        command: docker build . -t ${DOCKER-TAG}
     - run:
         command: |-
           docker login -u ${ARTIFACTORY_USER} -p ${ARTIFACTORY_API_KEY} mydomain-repo.jfrog.io

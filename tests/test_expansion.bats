@@ -119,6 +119,17 @@ EOL
   assert_contains_text 'at: target'
 }
 
+@test "Job: docker job without steps includes docker build" {
+  # given
+  append_project_configuration tests/inputs/job-docker-simple.yml > $PACKED_PROJECT_CONFIG
+
+  # when
+  # run command creates a status and output variable
+  run circleci config process $PACKED_PROJECT_CONFIG
+
+  # then
+  assert_contains_text 'docker build . -t ${DOCKER-TAG}'
+}
 
 # 
 #  Full config file tests - use sparingly as maintenance of tests is considerably more than command level checks
@@ -167,6 +178,18 @@ EOL
 @test "Job: docker job with steps matches expected configuration" {
   # given
   append_project_configuration tests/inputs/job-docker.yml > $PACKED_PROJECT_CONFIG
+
+  # when
+  # run command creates a status and output variable
+  run circleci config process $PACKED_PROJECT_CONFIG
+
+  # then
+  assert_matches_file tests/outputs/job-docker-steps.yml
+}
+
+@test "Job: docker job without steps matches expected configuration" {
+  # given
+  append_project_configuration tests/inputs/job-docker-simple.yml > $PACKED_PROJECT_CONFIG
 
   # when
   # run command creates a status and output variable
