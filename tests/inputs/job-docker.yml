@@ -6,7 +6,7 @@ workflows:
           name: Docker Publish
           docker-registry: mydomain-repo.jfrog.io
           repository: docker-repo
-          docker-tag: my-image:1.0-${CIRCLE_BUILD_NUM}
+          docker-tag: mydomain-repo.jfrog.io/my-image:1.0-${CIRCLE_BUILD_NUM}
           docker-steps:
             - run: docker pull hello-world
             - run: docker tag hello-world:latest mydomain-repo.jfrog.io/my-image:1.0-${CIRCLE_BUILD_NUM}

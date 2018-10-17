@@ -4,7 +4,7 @@ parameters:
     description: "Steps to authenticate with registry, tag and push images. See Examples`"
   docker-tag:
     type: string
-    description: "Local docker tag to use when issuing docker/rt commands. Should be create by docker-steps parameters"
+    description: "Fully qualified(including reigstry) tag to use when issuing docker push commands."
   repository:
     type: string
     description: "Remote repsository name in artifactory"

@@ -38,8 +38,8 @@ jobs:
           docker push mydomain-repo.jfrog.io/my-image:1.0-${CIRCLE_BUILD_NUM}
         name: Docker Push to JFrog Registry
     - run:
-        command: jfrog rt dp my-image:1.0-${CIRCLE_BUILD_NUM} docker-repo -build-name=${CIRCLE_PROJECT_REPONAME}
-          --build-number=${CIRCLE_BUILD_NUM}
+        command: jfrog rt dp mydomain-repo.jfrog.io/my-image:1.0-${CIRCLE_BUILD_NUM}
+          docker-repo -build-name=${CIRCLE_PROJECT_REPONAME} --build-number=${CIRCLE_BUILD_NUM}
         name: JFrog CLI Docker Publish
     - run:
         command: jfrog rt bag ${CIRCLE_PROJECT_REPONAME} ${CIRCLE_BUILD_NUM}
