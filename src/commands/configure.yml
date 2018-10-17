@@ -5,5 +5,6 @@ steps:
         : "${ARTIFACTORY_URL?Artifactory URL and API Key must be set as Environment variables before running this command.}"
         : "${ARTIFACTORY_API_KEY?Artifactory URL and API Key must be set as Environment variables before running this command.}"
         : "${ARTIFACTORY_USER?Artifactory URL and API Key must be set as Environment variables before running this command.}"
+        echo "configuring jfrog CLI with target ${ARTIFACTORY_USER}@${ARTIFACTORY_URL}"
         jfrog rt c --user=${ARTIFACTORY_USER} --url=${ARTIFACTORY_URL} --apikey=${ARTIFACTORY_API_KEY} --interactive=false
       
