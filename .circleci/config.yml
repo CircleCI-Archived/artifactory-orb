@@ -33,7 +33,7 @@ jobs:
           name: Pack and Validate
           command: |
             circleci config pack src/ > packed.yml
-            circleci orb validate packed.yml
+            circleci orb validate packed.yml --token ${CIRCLE_API_TOKEN}
       - install-bats
       - run:
           name: Inline Tests using BATS
@@ -51,7 +51,7 @@ jobs:
           name: Publish Dev
           command: |
             circleci config pack src/ > packed.yml
-            circleci orb validate packed.yml
+            circleci orb validate packed.yml --token ${CIRCLE_API_TOKEN}
             circleci orb publish packed.yml sandbox/artifactory@dev:${CIRCLE_BRANCH} --token ${CIRCLE_API_TOKEN}
       - install-bats
       - run:
@@ -70,7 +70,7 @@ jobs:
           name: Publish prod
           command: |
             circleci config pack src/ > packed.yml
-            circleci orb validate packed.yml
+            circleci orb validate packed.yml --token ${CIRCLE_API_TOKEN}
             circleci orb publish packed.yml sandbox/artifactory@0.1.${CIRCLE_BUILD_NUM} --token ${CIRCLE_API_TOKEN}
       - install-bats
       - run:
