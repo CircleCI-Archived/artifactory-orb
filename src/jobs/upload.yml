@@ -21,14 +21,18 @@ parameters:
   target:
     type: string
     description: "The remote path in artifactory, using pattern [repository_name]/[repository_path]"
-  build-integration:
-    type: boolean
-    default: true
-    description: "Should artifact be attached to a Build?"
   build-name:
     type: string
     default: '${CIRCLE_PROJECT_REPONAME}' 
     description: "Name used in Artifactory Build Integration"
+  build-number:
+    type: string
+    default: '${CIRCLE_BUILD_NUM}' 
+    description: "Build Number used in Artifactory Build Integration"
+  build-integration:
+    type: boolean
+    default: true
+    description: "Should Artifactory 'Build Publish' task be executed"
   include-git:
     type: boolean
     default: true
@@ -54,11 +58,13 @@ steps:
       target: <<parameters.target>>
       file-spec: <<parameters.file-spec>> 
       build-name: <<parameters.build-name>>
+      build-number: <<parameters.build-number>>
   - when:
       condition: <<parameters.build-integration>> 
       steps:
         - build-integration:
             build-name: <<parameters.build-name>>
+            build-number: <<parameters.build-number>>
             include-git: <<parameters.include-git>>
             include-env: <<parameters.include-env>>
 

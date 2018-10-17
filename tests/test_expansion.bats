@@ -25,7 +25,7 @@ function setup {
   run circleci config process $PACKED_PROJECT_CONFIG
 
   # then
-  assert_contains_text 'jfrog rt c --url=${ARTIFACTORY_URL} --apikey=${ARTIFACTORY_API_KEY} --interactive=false'
+  assert_contains_text 'jfrog rt c --user=${ARTIFACTORY_USER} --url=${ARTIFACTORY_URL} --apikey=${ARTIFACTORY_API_KEY} --interactive=false'
 }
 
 @test "Command: Install Command generates valid step" {
@@ -161,4 +161,17 @@ EOL
 
   # then
   assert_matches_file tests/outputs/job-with-steps.yml
+}
+
+
+@test "Job: docker job with steps matches expected configuration" {
+  # given
+  append_project_configuration tests/inputs/job-docker.yml > $PACKED_PROJECT_CONFIG
+
+  # when
+  # run command creates a status and output variable
+  run circleci config process $PACKED_PROJECT_CONFIG
+
+  # then
+  assert_matches_file tests/outputs/job-docker.yml
 }

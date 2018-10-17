@@ -7,19 +7,21 @@ parameters:
     default: true
   build-name:
     type: string
+  build-number:
+    type: string
 steps:
   - when:
       condition: <<parameters.include-git>> 
       steps:
         - run:
             name: Collect git Details with JFrog CLI
-            command: jfrog rt bag <<parameters.build-name>> ${CIRCLE_BUILD_NUM}
+            command: jfrog rt bag <<parameters.build-name>> <<parameters.build-number>>
   - when:
       condition: <<parameters.include-env>> 
       steps:
         - run:
             name: Collect Env. Details with JFrog CLI
-            command: jfrog rt bce <<parameters.build-name>> ${CIRCLE_BUILD_NUM}
+            command: jfrog rt bce <<parameters.build-name>> <<parameters.build-number>>
   - run:
       name: Publish Build Details Details with JFrog CLI
-      command: jfrog rt bp <<parameters.build-name>> ${CIRCLE_BUILD_NUM}
+      command: jfrog rt bp <<parameters.build-name>> <<parameters.build-number>>

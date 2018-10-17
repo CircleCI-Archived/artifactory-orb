@@ -1,4 +1,8 @@
-version: 2
+workflows:
+  version: 2
+  test-orb:
+    jobs:
+    - Test Upload
 jobs:
   Test Upload:
     docker:
@@ -22,7 +26,8 @@ jobs:
         command: |
           : "${ARTIFACTORY_URL?Artifactory URL and API Key must be set as Environment variables before running this command.}"
           : "${ARTIFACTORY_API_KEY?Artifactory URL and API Key must be set as Environment variables before running this command.}"
-          jfrog rt c --url=${ARTIFACTORY_URL} --apikey=${ARTIFACTORY_API_KEY} --interactive=false
+          : "${ARTIFACTORY_USER?Artifactory URL and API Key must be set as Environment variables before running this command.}"
+          jfrog rt c --user=${ARTIFACTORY_USER} --url=${ARTIFACTORY_URL} --apikey=${ARTIFACTORY_API_KEY} --interactive=false
         name: Configure JFrog CLI
     - run:
         command: jfrog rt upload test/artifact.jar repo/path --build-name=${CIRCLE_PROJECT_REPONAME}
@@ -37,8 +42,4 @@ jobs:
     - run:
         command: jfrog rt bp ${CIRCLE_PROJECT_REPONAME} ${CIRCLE_BUILD_NUM}
         name: Publish Build Details Details with JFrog CLI
-workflows:
-  version: 2
-  test-orb:
-    jobs:
-    - Test Upload
+version: 2

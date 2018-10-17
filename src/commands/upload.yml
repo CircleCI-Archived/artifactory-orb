@@ -8,17 +8,19 @@ parameters:
     type: string 
   build-name:
     type: string
+  build-number:
+    type: string
 steps:
   - when:
       condition: <<parameters.file-spec>> 
       steps:
         - run:
             name: Upload Assets with JFrog CLI
-            command: jfrog rt upload <<parameters.source>> <<parameters.target>> --spec=<<parameters.file-spec>> --build-name=<<parameters.build-name>> --build-number=${CIRCLE_BUILD_NUM}
+            command: jfrog rt upload <<parameters.source>> <<parameters.target>> --spec=<<parameters.file-spec>> --build-name=<<parameters.build-name>> --build-number=<<parameters.build-number>>
   - unless:
       condition: <<parameters.file-spec>> 
       steps:
         - run:
             name: Upload Assets with JFrog CLI
-            command: jfrog rt upload <<parameters.source>> <<parameters.target>> --build-name=<<parameters.build-name>> --build-number=${CIRCLE_BUILD_NUM}
+            command: jfrog rt upload <<parameters.source>> <<parameters.target>> --build-name=<<parameters.build-name>> --build-number=<<parameters.build-number>>
   

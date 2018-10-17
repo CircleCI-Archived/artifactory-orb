@@ -62,9 +62,9 @@ function setup {
 
   # when
   # IMPORTANT ** circleci only mounts local directory, so our generated config file must live here.
-  run circleci build -c ${PACKED_PROJECT_CONFIG} --env ARTIFACTORY_URL="http://example.com" --env ARTIFACTORY_API_KEY="123" 
+  run circleci build -c ${PACKED_PROJECT_CONFIG} --env ARTIFACTORY_URL="http://example.com" --env ARTIFACTORY_API_KEY="123" --env ARTIFACTORY_USER=admin 
 
   # then
-  assert_contains_text 'Success!'
+  assert_contains_text 'Artifactory response: 404 Not Found'
 }
 

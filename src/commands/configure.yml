@@ -4,5 +4,6 @@ steps:
       command: |
         : "${ARTIFACTORY_URL?Artifactory URL and API Key must be set as Environment variables before running this command.}"
         : "${ARTIFACTORY_API_KEY?Artifactory URL and API Key must be set as Environment variables before running this command.}"
-        jfrog rt c --url=${ARTIFACTORY_URL} --apikey=${ARTIFACTORY_API_KEY} --interactive=false
+        : "${ARTIFACTORY_USER?Artifactory URL and API Key must be set as Environment variables before running this command.}"
+        jfrog rt c --user=${ARTIFACTORY_USER} --url=${ARTIFACTORY_URL} --apikey=${ARTIFACTORY_API_KEY} --interactive=false
       
