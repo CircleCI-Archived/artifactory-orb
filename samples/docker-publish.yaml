@@ -1,0 +1,18 @@
+version: 2.1
+orbs:
+  artifactory: sandbox/artifactory@volatile
+
+workflows:
+  publish-docker:
+    jobs:
+      - artifactory/docker-publish:
+          name: Docker Publish
+          docker-registry: orbdemos-docker-local.jfrog.io
+          repository: docker-local
+          docker-tag: orbdemos-docker-local.jfrog.io/hello-world:1.0-${CIRCLE_BUILD_NUM}
+          docker-steps:
+            # this is just pulls an image from docker hub and prepares it to be pushed artifactory.
+            # A reall project would use docker build, compose etc to generate a tagged build.
+            - run: docker pull hello-world
+            - run: docker tag hello-world:latest orbdemos-docker-local.jfrog.io/hello-world:1.0-${CIRCLE_BUILD_NUM}
+        

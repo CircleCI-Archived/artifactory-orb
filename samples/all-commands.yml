@@ -1,0 +1,27 @@
+version: 2.1
+orbs:
+  artifactory: sandbox/artifactory@volatile
+
+workflows:
+  test-orb:
+    jobs:
+      - upload-commands-example
+
+jobs:
+  upload-commands-example
+    docker:
+      - image: circleci/node:10
+    steps:
+      # These are the example steps for consuming the orb.
+      - checkout
+      - artifactory/install
+      - artifactory/configure
+      - run: echo "not a jar" >> artifact.jar
+      - artifactory/upload:
+          source: artifact.jar
+          target: local-generic/commandfolder
+          build-name: generic-artifact-command
+          build-number: ${CIRCLE_BUILD_NUM}
+      - artifactory/build-integration:
+          build-name: generic-artifact-command
+          build-number: ${CIRCLE_BUILD_NUM}
