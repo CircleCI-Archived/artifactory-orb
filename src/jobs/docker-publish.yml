@@ -8,6 +8,9 @@ parameters:
   repository:
     type: string
     description: "Remote repsository name in artifactory"
+  docker-registry:
+    type: string
+    description: "The URL to use for docker login, depends on webServer configuration of Artifactory - https://www.jfrog.com/confluence/display/RTF/Getting+Started+with+Artifactory+as+a+Docker+Registry"
   build-name:
     type: string
     default: '${CIRCLE_PROJECT_REPONAME}' 
@@ -33,6 +36,7 @@ steps:
   - configure
   - steps: << parameters.docker-steps >>
   - docker-publish:
+      docker-registry: <<parameters.docker-registry>>
       build-name: <<parameters.build-name>>
       build-number: <<parameters.build-number>>
       docker-tag: <<parameters.docker-tag>>
