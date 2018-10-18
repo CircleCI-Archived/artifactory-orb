@@ -141,9 +141,9 @@ commands:
       - run:
           name: Install YQ
           command: |
-            curl -L https://github.com/mikefarah/yq/releases/download/2.1.1/yq_linux_arm64 -o yq
+            curl -L https://github.com/mikefarah/yq/releases/download/2.1.1/yq_linux_amd64 -o yq
             chmod a+x yq
-            sudo mv yq /usr/local
+            sudo mv yq /usr/local/bin/
   install-circleci:
     description: installs the new CIrcleCI CLI with orb support
     steps:
