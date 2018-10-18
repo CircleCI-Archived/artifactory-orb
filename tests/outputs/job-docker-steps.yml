@@ -6,7 +6,7 @@ workflows:
 jobs:
   Docker Publish:
     environment:
-    - DOCKER-TAG: mydomain-repo.jfrog.io/my-image:1.0-${CIRCLE_BUILD_NUM}
+    - RAWTAG: mydomain-repo.jfrog.io/my-image:1.0-${CIRCLE_BUILD_NUM}
     machine: true
     steps:
     - checkout
@@ -31,6 +31,8 @@ jobs:
           echo "configuring jfrog CLI with target ${ARTIFACTORY_USER}@${ARTIFACTORY_URL}"
           jfrog rt c --user=${ARTIFACTORY_USER} --url=${ARTIFACTORY_URL} --apikey=${ARTIFACTORY_API_KEY} --interactive=false
         name: Configure JFrog CLI
+    - run:
+        command: eval echo "export DOCKERTAG=${RAWTAG}" >> $BASH_ENV
     - run:
         command: docker pull hello-world
     - run:

@@ -128,7 +128,7 @@ EOL
   run circleci config process $PACKED_PROJECT_CONFIG
 
   # then
-  assert_contains_text 'docker build . -t ${DOCKER-TAG}'
+  assert_contains_text 'docker build . -t ${DOCKERTAG}'
 }
 
 # 

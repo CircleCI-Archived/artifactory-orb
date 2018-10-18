@@ -1,12 +1,13 @@
 parameters:
   docker-steps:
     type: steps
-    description: "Steps to Build and Tag image, defaults to `docker build . -t <tag-name>`"
+    description: "Steps to Build and Tag image, defaults to `docker build . -t ${DOCKERTAG}`"
     default: 
-      - run: docker build . -t ${DOCKER-TAG}
+      - run: docker build . -t ${DOCKERTAG}
   docker-tag:
     type: string
-    description: "Fully qualified(including reigstry) tag to use when issuing docker push commands."
+    description: "Fully qualified(including reigstry) tag to use when issuing docker push commands. 
+      Will also be exposed to 'docker-steps' as a ${DOCKERTAG}"
   repository:
     type: string
     description: "Remote repsository name in artifactory"
@@ -33,13 +34,14 @@ parameters:
     default: true
 machine: true
 environment:
-  DOCKER-TAG: <<parameters.docker-tag>>
+  RAWTAG: <<parameters.docker-tag>>
 steps:
   - checkout
   - install
   - configure
+  # if user passed a variable in the <<docker-tag>> it wont be interpolated. We process to a new safe variable.
+  - run: eval echo "export DOCKERTAG=${RAWTAG}" >> $BASH_ENV
   - steps: << parameters.docker-steps >>
-        
   - docker-publish:
       docker-registry: <<parameters.docker-registry>>
       build-name: <<parameters.build-name>>
