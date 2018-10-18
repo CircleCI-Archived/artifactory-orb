@@ -4,18 +4,56 @@ CircleCI Orb created in partnership with jFrog.
 
 ## Features
 
-This orb will support the major features of the [JFrog CLI](https://www.jfrog.com/confluence/display/CLI/CLI+for+JFrog+Artifactory)
+This orb will support the major features of the [JFrog CLI](https://www.jfrog.com/confluence/display/CLI/CLI+for+JFrog+Artifactory), including build integration (collecting environment info, etc)
 
-To limit the permutations of variables, advanced use cases must pass a [`specs` file.](https://www.jfrog.com/confluence/display/CLI/CLI+for+JFrog+Artifactory#CLIforJFrogArtifactory-UsingFileSpecs)
+To limit the permutations of variables, advanced use cases may pass a [`specs` file.](https://www.jfrog.com/confluence/display/CLI/CLI+for+JFrog+Artifactory#CLIforJFrogArtifactory-UsingFileSpecs)
 
 ## Sample Project
 You can browse the configuration of [Artifactory Orb Test](https://github.com/eddiewebb/artifactory-orb-test/blob/smoke-test/.circleci/config.yml) for working examples.
 
 ### Jobs
 
-You can reference the provided Jobs from a 2.1 Workflows configuration stanza. Unless provided, the executor is a OpenJDK 8 Docker image.
+You can reference the provided Jobs from a 2.1 Workflows configuration stanza. 
 
-- Upload - installs and configures CLI before calling upload command.
+- **Docker Publish** - Build and publish Docker images
+- **Upload** - Generic artifact upload
+
+#### Docker Publish Example
+Assuming you have a Dockerfile in root of repo, its as simple as:
+```
+version: 2.1
+orbs:
+  artifactory: sandbox/artifactory@1.0
+
+workflows:
+  publish-docker-example:
+    jobs:
+      - artifactory/docker-publish:
+          name: Docker Publish Simple
+          docker-registry: orbdemos-docker-local.jfrog.io
+          repository: docker-local
+          docker-tag: orbdemos-docker-local.jfrog.io/hello-world:1.0-${CIRCLE_BUILD_NUM}
+```
+
+If you want to customize the steps used to create the docker image, you can override `docker-steps` but be sure you generate an image with $DOCKERTAG.
+
+```
+version: 2.1
+orbs:
+  artifactory: sandbox/artifactory@volatile
+
+workflows:
+  custom-docker-example:
+    jobs:
+      - artifactory/docker-publish:
+          name: Docker Publish CustomBuild
+          docker-registry: orbdemos-docker-local.jfrog.io
+          repository: docker-local
+          docker-tag: orbdemos-docker-local.jfrog.io/hello-world-custom:1.0-${CIRCLE_BUILD_NUM}
+          docker-steps:
+            - run: docker build -t $DOCKERTAG docker-publish-assets/
+```
+
 
 #### Upload Job Example
 
