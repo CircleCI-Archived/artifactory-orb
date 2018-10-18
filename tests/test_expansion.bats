@@ -179,6 +179,7 @@ function setup {
   export ARTIFACTORY_URL=http://example.com
   export ARTIFACTORY_API_KEY=123
   export ARTIFACTORY_USER=USER
+
   run bash ${BATS_TMPDIR}/script-${BATS_TEST_NUMBER}.bash
   
 
@@ -200,6 +201,7 @@ function setup {
   export ARTIFACTORY_URL=http://example.com
   export ARTIFACTORY_API_KEY=SHOLDNOTBEPRINTED
   export ARTIFACTORY_USER=USER
+  alias jfroq='echo "Running jfrog"'
   run bash ${BATS_TMPDIR}/script-${BATS_TEST_NUMBER}.bash
   
 
