@@ -1,8 +1,4 @@
-workflows:
-  version: 2
-  test-orb:
-    jobs:
-    - Test Upload
+version: 2
 jobs:
   Test Upload:
     docker:
@@ -45,4 +41,8 @@ jobs:
     - run:
         command: jfrog rt bp ${CIRCLE_PROJECT_REPONAME} ${CIRCLE_BUILD_NUM}
         name: Publish Build Details Details with JFrog CLI
-version: 2
+workflows:
+  version: 2
+  test-orb:
+    jobs:
+    - Test Upload
