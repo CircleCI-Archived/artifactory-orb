@@ -39,6 +39,15 @@ function assemble_external {
 	fi
 }
 
+function process_config_with {
+	append_project_configuration $1 > $INPUT_PROJECT_CONFIG
+ 	circleci config process $INPUT_PROJECT_CONFIG > ${PROCESSED_PROJECT_CONFIG}
+ 	yq read -j ${PROCESSED_PROJECT_CONFIG} > ${JSON_PROJECT_CONFIG}
+
+ 	#assertions use output, tests can override outptu to test additional commands beyond parsing.
+ 	output=`cat  ${PROCESSED_PROJECT_CONFIG}`
+}
+
 
 #
 #  Add assertions for use in BATS tests
@@ -50,7 +59,7 @@ function assert_contains_text {
 		echo "Expected text \`$TEXT\`, not found in output (printed below)"
 		echo $output
 		return 1
-	fi		
+	fi	
 }
 
 function assert_text_not_found {
@@ -59,14 +68,23 @@ function assert_text_not_found {
 		echo "Forbidden text \`$TEXT\`, was found in output.."
 		echo $output
 		return 1
-	fi		
+	fi	
 }
 
 function assert_matches_file {
 	FILE=$1
-
 	echo "${output}" | sed '/# Original config.yml file:/q' | sed '$d' | diff -B $FILE -
 	return $?
 }
+
+function assert_jq_match {
+	MATCH=$2
+	RES=$(jq -r "$1" ${JSON_PROJECT_CONFIG})
+	if [[ "$RES" != "$MATCH" ]];then
+		echo "Expected match "'"'"$MATCH"'"'" was not found in "'"'"$RES"'"'
+		return 1
+	fi
+}
+
 
 
