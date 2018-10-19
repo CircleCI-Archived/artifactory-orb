@@ -133,11 +133,17 @@ commands:
   install-bats:
     description: installs the BATS bash testing tool
     steps:
-      - run:
+      - run:      
           name: Install BATS (bash testing)
           command: |
             cd /tmp && git clone https://github.com/bats-core/bats-core.git && cd bats-core
             sudo ./install.sh /usr/local
+      - run:
+          name: Install YQ
+          command: |
+            curl -L https://github.com/mikefarah/yq/releases/download/2.1.1/yq_linux_amd64 -o yq
+            chmod a+x yq
+            sudo mv yq /usr/local/bin/
   install-circleci:
     description: installs the new CIrcleCI CLI with orb support
     steps:

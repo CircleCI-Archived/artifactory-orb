@@ -41,30 +41,3 @@ function setup {
   assert_contains_text 'Not found, installing latest'
 }
 
-@test "Command: configure command prints nice warnings if envars missing " {
-  # given
-  append_project_configuration tests/inputs/command-configure.yml > $INPUT_PROJECT_CONFIG
-  circleci config process $INPUT_PROJECT_CONFIG > ${PACKED_PROJECT_CONFIG}
-
-  # when
-  # IMPORTANT ** circleci only mounts local directory, so our generated config file must live here.
-  run circleci build -c ${PACKED_PROJECT_CONFIG}
-
-  # then
-  assert_contains_text 'Artifactory URL and API Key must be set as Environment variables before running this command.'
-  assert_contains_text 'ARTIFACTORY_URL'
-}
-
-@test "Command: configure command passes when env vars are set " {
-  # given
-  append_project_configuration tests/inputs/command-configure.yml > $INPUT_PROJECT_CONFIG
-  circleci config process $INPUT_PROJECT_CONFIG > ${PACKED_PROJECT_CONFIG}
-
-  # when
-  # IMPORTANT ** circleci only mounts local directory, so our generated config file must live here.
-  run circleci build -c ${PACKED_PROJECT_CONFIG} --env ARTIFACTORY_URL="http://example.com" --env ARTIFACTORY_API_KEY="123" --env ARTIFACTORY_USER=admin 
-
-  # then
-  assert_contains_text 'Artifactory response: 404 Not Found'
-}
-
