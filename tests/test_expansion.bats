@@ -83,7 +83,7 @@ function setup {
 
   # then
   assert_jq_match '.jobs | length' 1 #only 1 job
-  assert_jq_match '.jobs["Docker Publish"].steps | length' 10 #which contains 10 steps
+  assert_jq_match '.jobs["Docker Publish"].steps | length' 9 #which contains 9 steps
   assert_jq_match '.jobs["Docker Publish"].steps[0]' 'checkout'  #first of which is checkout
   assert_jq_match '.jobs["Docker Publish"].steps[4].run.command' 'docker build . -t ${DOCKERTAG}'  # 5th is our default step
 }

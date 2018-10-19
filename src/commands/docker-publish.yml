@@ -14,7 +14,6 @@ parameters:
 steps:
   - run:
       name: Docker Push to JFrog Registry
-      command: |-
+      command: |
         docker login -u ${ARTIFACTORY_USER} -p ${ARTIFACTORY_API_KEY} <<parameters.docker-registry>>
-        jfrog rt dp <<parameters.docker-tag>> <<parameters.repository>> --build-name=<<parameters.build-name>> --build-number=<<parameters.build-number>> 
-  
+        jfrog rt dp <<parameters.docker-tag>> <<parameters.repository>> --build-name=<<parameters.build-name>> --build-number=<<parameters.build-number>>

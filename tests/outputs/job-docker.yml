@@ -32,14 +32,10 @@ jobs:
     - run:
         command: docker build . -t ${DOCKERTAG}
     - run:
-        command: |-
+        command: |
           docker login -u ${ARTIFACTORY_USER} -p ${ARTIFACTORY_API_KEY} mydomain-repo.jfrog.io
-          docker push mydomain-repo.jfrog.io/my-image:1.0-${CIRCLE_BUILD_NUM}
+          jfrog rt dp mydomain-repo.jfrog.io/my-image:1.0-${CIRCLE_BUILD_NUM} docker-repo --build-name=${CIRCLE_PROJECT_REPONAME} --build-number=${CIRCLE_BUILD_NUM}
         name: Docker Push to JFrog Registry
-    - run:
-        command: jfrog rt dp mydomain-repo.jfrog.io/my-image:1.0-${CIRCLE_BUILD_NUM}
-          docker-repo -build-name=${CIRCLE_PROJECT_REPONAME} --build-number=${CIRCLE_BUILD_NUM}
-        name: JFrog CLI Docker Publish
     - run:
         command: jfrog rt bag ${CIRCLE_PROJECT_REPONAME} ${CIRCLE_BUILD_NUM}
         name: Collect git Details with JFrog CLI
