@@ -126,8 +126,8 @@ jobs:
 | file-spec | string |  '' | "Optional: Path to a File Spec containing additional configuration" |
 | build-steps | steps |  [] | "Steps to generate artifacts. Alternately provide `workspace-path`" |
 | workspace-path | string |  '' | "The key of a workflow workspace which contains artifact. Alternately provide `build-steps`" |
-| source | string |  "The local pattern of files to upload" |
-| target | string |  "The remote path in artifactory, using pattern [repository_name]/[repository_path]" |
+| source | string |  | "The local pattern of files to upload" |
+| target | string |  | "The remote path in artifactory, using pattern [repository_name]/[repository_path]" |
 
 
 
