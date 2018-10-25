@@ -8,7 +8,7 @@ This orb will support the major features of the [JFrog CLI](https://www.jfrog.co
 
 To limit the permutations of variables, advanced use cases may pass a [`specs` file.](https://www.jfrog.com/confluence/display/CLI/CLI+for+JFrog+Artifactory#CLIforJFrogArtifactory-UsingFileSpecs)
 
-## Sample Project
+### Sample Project
 You can browse the configuration of [Artifactory Orb Test](https://github.com/eddiewebb/artifactory-orb-test/blob/smoke-test/.circleci/config.yml) for working examples.
 
 ### Jobs
@@ -97,6 +97,38 @@ jobs:
         command: |
           jfrog rt bce my-build ${CIRCLE_BUILD_NUM}
 ```
+
+## Parameters / Configuration
+
+### Common Config
+| Parameter         | type    | default  |     description |
+|------------------|--------|-------------|----------------|
+| build-name        | string  | ${CIRCLE_PROJECT_REPONAME}  | Build Name used in Artifactory Build Integration |
+| build-number      | string  | ${CIRCLE_BUILD_NUM}'  | Build Number used in Artifactory Build Integration |
+| build-integration | boolean | true |   Should Artifactory 'Build Publish' task be executed |       
+| include-git       | boolean | true |   Should git info, i.e. `jfrog rt bag`  be collected |       
+| include-env       | boolean | true |   Should environment variables, i.e. `jfrog rt bce` be collected      |
+
+### Docker Publish
+
+| Parameter         | type    | default  |     description |
+|------------------|--------|-------------|----------------|
+| repository        | string  |     | Remote repsository name in artifactory | 
+| docker-registry   | string  |   | The URL to use for docker login, depends on webServer configuration of Artifactory - [more info](https://www.jfrog.com/confluence/display/RTF/Getting+Started+with+Artifactory+as+a+Docker+Registry) |
+| docker-steps      | steps   | docker build . -t ${DOCKERTAG}    | Steps to Build and Tag image, defaults to `docker build . -t ${DOCKERTAG}` |
+| docker-tag        | string  |    | Fully qualified(including reigstry) tag to use when issuing docker push commands.   Will also be exposed to 'docker-steps' as a ${DOCKERTAG} |
+
+### Generic Upload
+
+| Parameter         | type    | default  |     description |
+| docker | string |  'circleci/openjdk:8' | "Docker image to use for build" |
+| file-spec | string |  '' | "Optional: Path to a File Spec containing additional configuration" |
+| build-steps | steps |  [] | "Steps to generate artifacts. Alternately provide `workspace-path`" |
+| workspace-path | string |  '' | "The key of a workflow workspace which contains artifact. Alternately provide `build-steps`" |
+| source | string |  "The local pattern of files to upload" |
+| target | string |  "The remote path in artifactory, using pattern [repository_name]/[repository_path]" |
+
+
 
 
 ## Contributing
