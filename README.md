@@ -120,7 +120,8 @@ jobs:
 
 ### Generic Upload
 
-| Parameter         | type    | default  |     description |
+| Parameter        | type    | default    |    description |
+|------------------|--------|-------------|----------------|
 | docker | string |  'circleci/openjdk:8' | "Docker image to use for build" |
 | file-spec | string |  '' | "Optional: Path to a File Spec containing additional configuration" |
 | build-steps | steps |  [] | "Steps to generate artifacts. Alternately provide `workspace-path`" |
