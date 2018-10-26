@@ -52,12 +52,12 @@ jobs:
           command: |
             circleci config pack src/ > packed.yml
             circleci orb validate packed.yml --token ${CIRCLE_API_TOKEN}
-            circleci orb publish packed.yml circleci/artifactory@dev:${CIRCLE_BRANCH} --token ${CIRCLE_API_TOKEN}
+            circleci orb publish packed.yml circleci/artifactory@dev:${CIRCLE_BRANCH}-${CIRCLE_SHA1} --token ${CIRCLE_API_TOKEN}
       - install-bats
       - run:
           name: Import Tests using BATS
           command: |
-            export BATS_IMPORT_DEV_ORB="circleci/artifactory@dev:${CIRCLE_BRANCH}"
+            export BATS_IMPORT_DEV_ORB="circleci/artifactory@dev:${CIRCLE_BRANCH}-${CIRCLE_SHA1}"
             bats tests
 
   publish:
@@ -69,7 +69,7 @@ jobs:
       - run:
           name: Promote to prod
           command: |
-            circleci orb publish promote circleci/artifactory@dev:${CIRCLE_BRANCH} patch --token ${CIRCLE_API_TOKEN}
+            circleci orb publish promote circleci/artifactory@dev:${CIRCLE_BRANCH}-${CIRCLE_SHA1} patch --token ${CIRCLE_API_TOKEN}
       - install-bats
       - run:
           name: Import Tests using BATS
