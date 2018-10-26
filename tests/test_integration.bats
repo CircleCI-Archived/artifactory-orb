@@ -6,11 +6,10 @@ load bats_helper
 
 # setup is run beofre each test
 function setup {
-  INPUT_PROJECT_CONFIG=${BATS_TMPDIR}/input_config-${BATS_TEST_NUMBER} #`mktemp -t packed_config`
-
-  # To make config avaulable for docker, it must in in project dir, which ismounted as volume
-  PACKED_PROJECT_CONFIG=IT-config-${BATS_TEST_NUMBER} #`mktemp -t packed_config`
-  echo "#using temp file $PACKED_PROJECT_CONFIG"
+  INPUT_PROJECT_CONFIG=${BATS_TMPDIR}/input_config-${BATS_TEST_NUMBER}
+  PROCESSED_PROJECT_CONFIG=${BATS_TMPDIR}/packed_config-${BATS_TEST_NUMBER} 
+  JSON_PROJECT_CONFIG=${BATS_TMPDIR}/json_config-${BATS_TEST_NUMBER} 
+  echo "#using temp file ${BATS_TMPDIR}/"
 
   # the name used in example config files.
   INLINE_ORB_NAME="artifactory"
@@ -28,13 +27,13 @@ function setup {
 
 @test "Command: install logic skips if aleady installed" {
   # given
-  append_project_configuration tests/inputs/command-install.yml > $INPUT_PROJECT_CONFIG
-  circleci config process $INPUT_PROJECT_CONFIG > ${PACKED_PROJECT_CONFIG}
+  process_config_with tests/inputs/command-install.yml
 
   # when
   # IMPORTANT ** circleci only mounts local directory, so our generated config file must live here.
-  run circleci build -c ${PACKED_PROJECT_CONFIG}
-  rm ${PACKED_PROJECT_CONFIG}
+  cp ${PROCESSED_PROJECT_CONFIG} local.yml
+  run circleci build -c local.yml
+  rm local.yml
 
   # then
   assert_contains_text 'Checking for existence of CLI'
