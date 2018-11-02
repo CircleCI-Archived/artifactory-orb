@@ -71,9 +71,11 @@ function assert_text_not_found {
 	fi	
 }
 
+# TODO: This method is very brittle to the config process commands.
+# It should be avoided in favor of functions below that handle more precise matching.
 function assert_matches_file {
 	FILE=$1
-	echo "${output}" | sed '/# Original config.yml file:/q' | sed '$d' | diff -B $FILE -
+	echo "${output}" | sed '/# Original config.yml file:/q' | sed "/# Orb 'circleci\/artifactory@.*' resolved to .*$/d" | sed '$d' | diff -B $FILE -
 	return $?
 }
 
