@@ -1,2 +1,4 @@
 version: 2.1
-description: An orb expressing the features of the JFrog Artifactory CLI
+
+description: |
+  Install, configure, and use the JFrog Artifactory CLI
