@@ -32,6 +32,10 @@ parameters:
   include-env:
     type: boolean
     default: true
+  dependency-steps:
+    type: steps
+    description: "Include any additional steps to collect dependency information before `jfrog rt bp` is executed."
+    default: []
 machine: true
 environment:
   RAWTAG: <<parameters.docker-tag>>
@@ -49,6 +53,7 @@ steps:
       docker-tag: <<parameters.docker-tag>>
       repository: <<parameters.repository>>
       build-integration: <<parameters.build-integration>>
+  - steps: <<parameters.dependency-steps>>
   - when:
       condition: <<parameters.build-integration>> 
       steps:
