@@ -45,6 +45,7 @@ steps:
   - configure
   # if user passed a variable in the <<docker-tag>> it wont be interpolated. We process to a new safe variable.
   - run: eval echo "export DOCKERTAG=${RAWTAG}" >> $BASH_ENV
+  - steps: <<parameters.dependency-steps>>
   - steps: << parameters.docker-steps >>
   - docker-publish:
       docker-registry: <<parameters.docker-registry>>
@@ -53,7 +54,6 @@ steps:
       docker-tag: <<parameters.docker-tag>>
       repository: <<parameters.repository>>
       build-integration: <<parameters.build-integration>>
-  - steps: <<parameters.dependency-steps>>
   - when:
       condition: <<parameters.build-integration>> 
       steps:
