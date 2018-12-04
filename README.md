@@ -1,6 +1,6 @@
 # orb-artifactory
 
-CircleCI Orb created in partnership with jFrog.
+CircleCI Orb created in partnership with JFrog.
 
 ## Features
 
