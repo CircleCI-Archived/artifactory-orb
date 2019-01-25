@@ -1,4 +1,4 @@
-# orb-artifactory
+# Artifactory Org ![CircleCI status](https://circleci.com/gh/CircleCI-Public/artifactory-orb.svg "CircleCI status")
 
 CircleCI Orb created in partnership with JFrog.
 
