@@ -1,7 +1,7 @@
 parameters:
   docker:
     type: string
-    default: 'circleci/openjdk:8' 
+    default: 'circleci/openjdk:8'
     description: "Docker image to use for build"
   file-spec:
     type: string
@@ -23,11 +23,11 @@ parameters:
     description: "The remote path in artifactory, using pattern [repository_name]/[repository_path]"
   build-name:
     type: string
-    default: '${CIRCLE_PROJECT_REPONAME}' 
+    default: '${CIRCLE_PROJECT_REPONAME}'
     description: "Name used in Artifactory Build Integration"
   build-number:
     type: string
-    default: '${CIRCLE_BUILD_NUM}' 
+    default: '${CIRCLE_BUILD_NUM}'
     description: "Build Number used in Artifactory Build Integration"
   build-integration:
     type: boolean
@@ -39,32 +39,31 @@ parameters:
   include-env:
     type: boolean
     default: true
-docker: 
+docker:
   - image: <<parameters.docker>>
 steps:
   - checkout
   - when:
-      condition: <<parameters.build-steps>> 
+      condition: <<parameters.build-steps>>
       steps: << parameters.build-steps >>
   - when:
-      condition: <<parameters.workspace-path>> 
-      steps: 
+      condition: <<parameters.workspace-path>>
+      steps:
         - attach_workspace:
-            at: <<parameters.workspace-path>> 
+            at: <<parameters.workspace-path>>
   - install
   - configure
   - upload:
       source: <<parameters.source>>
       target: <<parameters.target>>
-      file-spec: <<parameters.file-spec>> 
+      file-spec: <<parameters.file-spec>>
       build-name: <<parameters.build-name>>
       build-number: <<parameters.build-number>>
   - when:
-      condition: <<parameters.build-integration>> 
+      condition: <<parameters.build-integration>>
       steps:
         - build-integration:
             build-name: <<parameters.build-name>>
             build-number: <<parameters.build-number>>
             include-git: <<parameters.include-git>>
             include-env: <<parameters.include-env>>
-

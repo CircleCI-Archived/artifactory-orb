@@ -2,5 +2,6 @@ parameters:
   docker-image:
     type: string
     default: "circleci/openjdk:8"
+
 docker:
   - image: <<parameters.docker-image>>
