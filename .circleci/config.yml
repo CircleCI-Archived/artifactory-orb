@@ -5,157 +5,41 @@ orbs:
   cli: circleci/circleci-cli@0.1.2
   orb-tools: circleci/orb-tools@7.3.0
 
-  commands:
-    # install-bats:
-    #   description: installs the BATS bash testing tool
-    #   steps:
-    #     - run:
-    #         name: Install BATS (bash testing)
-    #         command: |
-    #           cd /tmp && git clone https://github.com/bats-core/bats-core.git && cd bats-core
-    #           sudo ./install.sh /usr/local
-    #     - run:
-    #         name: Install YQ
-    #         command: |
-    #           curl -L https://github.com/mikefarah/yq/releases/download/2.1.1/yq_linux_amd64 -o yq
-    #           chmod a+x yq
-    #           sudo mv yq /usr/local/bin/
-
-    install-circleci:
-      description: installs the new CIrcleCI CLI with orb support
-      steps:
-        - run:
-            name: Install CircleCI CLI (the new one)
-            command: |
-              curl https://raw.githubusercontent.com/CircleCI-Public/circleci-cli/master/install.sh --fail --show-error | sudo bash
-              circleci version
-              echo "Run circleci help"
-              circleci help
-              echo -e "token: ${CIRCLE_API_TOKEN}\nverbose: false" > ~/.circleci/cli.yml
-
 jobs:
-  test-locally:
-    executor: cli/default
-    working_directory: ~/repo
-    steps:
-      - checkout
-      # - install-circleci
-      - run:
-          name: Pack and Validate
-          command: |
-            circleci config pack src/ > packed.yml
-            circleci orb validate packed.yml --token ${CIRCLE_API_TOKEN}
 
-      - orb-tools/install-bats
-
-      - run:
-          name: Inline Tests using BATS
-          command: |
-            # skip running full builds
-            bats tests/test_expansion.bats
-
-  test-dev:
-    executor: cli/default
-    working_directory: ~/repo
-    steps:
-      - checkout
-      # - install-circleci
-      - run:
-          name: Publish Dev
-          command: |
-            circleci config pack src/ > packed.yml
-            circleci orb validate packed.yml --token ${CIRCLE_API_TOKEN}
-            circleci orb publish packed.yml circleci/artifactory@dev:${CIRCLE_BRANCH}-${CIRCLE_SHA1} --token ${CIRCLE_API_TOKEN}
-      - orb-tools/install-bats
-      - run:
-          name: Import Tests using BATS
-          command: |
-            export BATS_IMPORT_DEV_ORB="circleci/artifactory@dev:${CIRCLE_BRANCH}-${CIRCLE_SHA1}"
-            bats tests
-
-  publish:
-    executor: cli/default
-    working_directory: ~/repo
-    steps:
-      - checkout
-      # - install-circleci
-      - run:
-          name: Promote to prod
-          command: |
-            circleci orb publish promote circleci/artifactory@dev:${CIRCLE_BRANCH}-${CIRCLE_SHA1} patch --token ${CIRCLE_API_TOKEN}
-      - orb-tools/install-bats
-      - run:
-          name: Import Tests using BATS
-          command: |
-            export BATS_IMPORT_DEV_ORB="circleci/artifactory@volatile"
-            bats tests
-
-  smoke-test:
-    docker:
-      - image: circleci/node:10
-    working_directory: ~/repo
-    steps:
-
-      # the trigger build api does not return any workflow or build IDs,
-      # so we naively assume we are the only thing to trigger jobs on a special branch.
-      - run:
-          name: Wait for any previous jobs to complete...
-          command: |
-            COUNT=$(curl https://circleci.com/api/v1.1/project/github/eddiewebb/artifactory-orb-test/tree/smoke-test?filter=running 2>/dev/null | jq length)
-            echo "Monitoring Build: $BUILD_URL for status"
-            echo "Visit https://circleci.com/api/v1.1/project/github/eddiewebb/artifactory-orb-test/tree/smoke-test?filter=running to see status"
-            while [ $COUNT -gt 0 ]; do
-              sleep 2
-              COUNT=$(curl https://circleci.com/api/v1.1/project/github/eddiewebb/artifactory-orb-test/tree/smoke-test?filter=running 2>/dev/null | jq length)
-            done
-            echo "No running builds on smoke-test branch, proceed with triggering"
-      - run:
-          name: Trigger test project
-          command: |
-            curl -X POST --header "Content-Type: application/json"  -d '{"branch":"smoke-test"}' https://circleci.com/api/v1.1/project/github/eddiewebb/artifactory-orb-test/build?circle-token=${CIRCLE_API_TOKEN}
-            sleep 10 # API does not return Job #, wait a bit t enure it bets queued .
-      - run:
-          name: Poll for result
-          command: |
-            curl https://circleci.com/api/v1.1/project/github/eddiewebb/artifactory-orb-test/tree/smoke-test?limit=1 > build-result.json
-            BUILD_URL=$(cat build-result.json | jq -r '.[0].build_url')
-            echo "Monitoring Build: $BUILD_URL for status"
-            while true; do
-              curl https://circleci.com/api/v1.1/project/github/eddiewebb/artifactory-orb-test/tree/smoke-test?limit=1 > build-result.json
-              LIFECYCLE=$(cat build-result.json | jq -r '.[0].lifecycle')
-              if [ "$LIFECYCLE" == "finished" ];then
-                STATUS=$(cat build-result.json | jq -r '.[0].status')
-                if [ "$STATUS" == "success" ];then
-                  echo "Test project build successful."
-                  exit 0
-                else
-                  exit 1
-                fi
-              else
-                sleep 10
-              fi
-            done
 
 workflows:
-  version: 2
-  test-orb:
+  lint_pack-validate_publish-dev:
     jobs:
-      - test-locally
+      - orb-tools/lint
 
-      - test-dev:
+      - orb-tools/pack:
           requires:
-            - test-locally
+            - orb-tools/lint
 
-      - publish:
+      - orb-tools/publish-dev:
+          orb-name: circleci/artifactory
+          context: orb-publishing
           requires:
-            - test-dev
+            - orb-tools/pack
+
+      - orb-tools/trigger-integration-workflow:
+          name: trigger-integration-dev
+          context: orb-publishing
+          ssh-fingerprints: 31:25:5b:d4:ce:5b:1f:81:fe:b3:c2:b5:ac:f2:55:8f
+          requires:
+            - orb-tools/publish-dev
           filters:
             branches:
-              only: master
+              ignore: master
 
-      - smoke-test:
+      - orb-tools/trigger-integration-workflow:
+          name: trigger-integration-master
+          context: orb-publishing
+          ssh-fingerprints: 31:25:5b:d4:ce:5b:1f:81:fe:b3:c2:b5:ac:f2:55:8f
+          tag: master
           requires:
-            - publish
+            - orb-tools/publish-dev
           filters:
             branches:
               only: master
