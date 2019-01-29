@@ -1,0 +1,15 @@
+{
+  "key" : "direct",
+  "webServerType" : "DIRECT",
+  "artifactoryAppContext" : "artifactory",
+  "publicAppContext" : "artifactory",
+  "serverName" : "localhost",
+  "artifactoryServerName" : "localhost",
+  "artifactoryPort" : 8081,
+  "dockerReverseProxyMethod" : "REPOPATHPREFIX",
+  "useHttps" : false,
+  "useHttp" : true,
+  "httpsPort" : 443,
+  "httpPort" : 8081,
+  "upStreamName" : "artifactory"
+}

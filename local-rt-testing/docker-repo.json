@@ -1,0 +1,6 @@
+{
+  "key" : "docker-repo",
+  "packageType" : "docker",
+  "description" : "",
+  "rclass" : "local"
+}
