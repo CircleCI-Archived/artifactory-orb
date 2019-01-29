@@ -141,15 +141,18 @@ workflows:
   test-orb:
     jobs:
       - test-locally
+
       - test-dev:
           requires:
             - test-locally
+
       - publish:
           requires:
             - test-dev
           filters:
             branches:
               only: master
+
       - smoke-test:
           requires:
             - publish
