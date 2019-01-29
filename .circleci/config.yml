@@ -11,7 +11,8 @@ jobs:
 workflows:
   lint_pack-validate_publish-dev:
     jobs:
-      - orb-tools/lint
+      - orb-tools/lint:
+          lint-dir: src
 
       - orb-tools/pack:
           requires:
