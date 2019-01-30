@@ -42,12 +42,14 @@ parameters:
 
   source:
     type: string
+    default: ""
     description: >
       Absolute or relative path to artifacts which should be uploaded to
       Artifactory. Specify multiple artifacts by using wildcards.
 
   target:
     type: string
+    default: ""
     description: >
       Target path in Artifactory for uploads, in the following format:
       [repository_name]/[repository_path]
