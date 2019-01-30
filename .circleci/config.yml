@@ -27,13 +27,13 @@ jobs:
       # test without file spec
       - artifactory/upload:
           source: artifact1.jar
-          target: local-generic/commandfolder1
+          target: all-commands/no-file-spec/
 
       # test with file spec
       - artifactory/upload:
           use-file-spec: true
           file-spec: spec.json
-          spec-vars: "spec-pattern=*.jar;spec-target=local-generic/commandfolder2"
+          spec-vars: "spec-pattern=*.jar;spec-target=all-commands/file-spec/"
 
       - artifactory/build-integration:
           build-name: generic-artifact-command
@@ -103,7 +103,7 @@ workflows:
           name: test-upload-dev
           context: orb-publishing
           source: artifact.jar
-          target: local-generic/artifact.jar
+          target: upload-job/no-file-spec/
           build-steps:
             - run: echo "not a jar" > artifact.jar
           filters: *integration-dev_filters
@@ -113,7 +113,7 @@ workflows:
           context: orb-publishing
           use-file-spec: true
           file-spec: spec.json
-          spec-vars: "spec-pattern=*.jar;spec-target=local-generic/jobfolder"
+          spec-vars: "spec-pattern=*.jar;spec-target=upload-job/file-spec/"
           build-steps:
             - run:
                 name: create sample artifact files
