@@ -5,8 +5,45 @@ orbs:
   cli: circleci/circleci-cli@0.1.2
   orb-tools: circleci/orb-tools@7.3.0
 
-jobs:
+executors:
+  node:
+    resource_class: small
+    docker:
+      - image: circleci/node:10
 
+jobs:
+  all-commands:
+    executor: node
+    steps:
+      # These are the example steps for consuming the orb.
+      - checkout
+      - artifactory/install
+      - artifactory/configure
+      - run: echo "not a jar" >> artifact.jar
+      - artifactory/upload:
+          source: artifact.jar
+          target: local-generic/commandfolder
+          build-name: generic-artifact-command
+          build-number: ${CIRCLE_BUILD_NUM}
+      - artifactory/build-integration:
+          build-name: generic-artifact-command
+          build-number: ${CIRCLE_BUILD_NUM}
+
+# yaml anchor filters
+integration-dev_filters: &integration-dev_filters
+  branches:
+    ignore: /.*/
+  tags:
+    only: /integration-.*/
+
+integration-master_filters: &integration-master_filters
+  branches:
+    ignore: /.*/
+  tags:
+    only: /master-.*/
+
+prod-deploy_requires: &prod-deploy_requires
+  [test-all-commands-master, test-upload-master, test-publish-master, test-publish-custom-master]
 
 workflows:
   lint_pack-validate_publish-dev:
@@ -44,3 +81,115 @@ workflows:
           filters:
             branches:
               only: master
+
+  integration_tests-prod_deploy:
+    jobs:
+      # triggered by non-master branch commits
+      - all-commands:
+          name: test-all-commands-dev
+          filters: *integration-dev_filters
+
+      - artifactory/upload:
+          name: test-upload-dev
+          source: artifact.jar
+          target: local-generic/artifact.jar
+          build-name: generic-artifact
+          build-steps:
+            - run: echo "not a jar" > artifact.jar
+          filters: *integration-dev_filters
+
+      - artifactory/docker-publish:
+          name: test-publish-dev
+          docker-registry: orbdemos-docker.jfrog.io
+          repository: docker
+          build-name: hello-alpine
+          docker-tag: orbdemos-docker.jfrog.io/hello-world-default:1.0-${CIRCLE_BUILD_NUM}
+          pre-steps:
+            - checkout
+            - run: cp docker-publish-assets/* .
+          filters: *integration-dev_filters
+
+      - artifactory/docker-publish:
+          name: test-publish-custom-dev
+          docker-registry: orbdemos-docker.jfrog.io
+          repository: docker
+          build-name: hello-alpine-custom
+          docker-tag: orbdemos-docker.jfrog.io/hello-alpine-custom:1.0-${CIRCLE_BUILD_NUM}
+          docker-steps:
+            - run: echo ${DOCKERTAG}
+            - run: jfrog rt dl local-generic/artifact.jar docker-publish-assets/ --build-name=hello-alpine-custom --build-number=${CIRCLE_BUILD_NUM}
+            - run: docker build -t $DOCKERTAG docker-publish-assets/
+          filters: *integration-dev_filters
+
+      # triggered by master branch commits
+      - all-commands:
+          name: test-all-commands-master
+          filters: *integration-master_filters
+
+      - artifactory/upload:
+          name: test-upload-master
+          source: artifact.jar
+          target: local-generic/artifact.jar
+          build-name: generic-artifact
+          build-steps:
+            - run: echo "not a jar" > artifact.jar
+          filters: *integration-master_filters
+
+      - artifactory/docker-publish:
+          name: test-publish-master
+          docker-registry: orbdemos-docker.jfrog.io
+          repository: docker
+          build-name: hello-alpine
+          docker-tag: orbdemos-docker.jfrog.io/hello-world-default:1.0-${CIRCLE_BUILD_NUM}
+          pre-steps:
+            - checkout
+            - run: cp docker-publish-assets/* .
+          filters: *integration-master_filters
+
+      - artifactory/docker-publish:
+          name: test-publish-custom-master
+          docker-registry: orbdemos-docker.jfrog.io
+          repository: docker
+          build-name: hello-alpine-custom
+          docker-tag: orbdemos-docker.jfrog.io/hello-alpine-custom:1.0-${CIRCLE_BUILD_NUM}
+          docker-steps:
+            - run: echo ${DOCKERTAG}
+            - run: jfrog rt dl local-generic/artifact.jar docker-publish-assets/ --build-name=hello-alpine-custom --build-number=${CIRCLE_BUILD_NUM}
+            - run: docker build -t $DOCKERTAG docker-publish-assets/
+          filters: *integration-master_filters
+
+      # patch, minor, or major publishing
+      - orb-tools/dev-promote-prod:
+          name: dev-promote-patch
+          orb-name: circleci/artifactory
+          context: orb-publishing
+          requires: *prod-deploy_requires
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /master-patch.*/
+
+      - orb-tools/dev-promote-prod:
+          name: dev-promote-minor
+          orb-name: circleci/artifactory
+          release: minor
+          context: orb-publishing
+          requires: *prod-deploy_requires
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /master-minor.*/
+
+      - orb-tools/dev-promote-prod:
+          name: dev-promote-major
+          orb-name: circleci/artifactory
+          release: major
+          context: orb-publishing
+          requires: *prod-deploy_requires
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /master-major.*/
