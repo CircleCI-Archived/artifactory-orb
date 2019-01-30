@@ -202,37 +202,37 @@ workflows:
       #     filters: *integration-master_filters
 
       # patch, minor, or major publishing
-      - orb-tools/dev-promote-prod:
-          name: dev-promote-patch
-          context: orb-publishing
-          orb-name: circleci/artifactory
-          requires: *prod-deploy_requires
-          filters:
-            branches:
-              ignore: /.*/
-            tags:
-              only: /master-patch.*/
+      # - orb-tools/dev-promote-prod:
+      #     name: dev-promote-patch
+      #     context: orb-publishing
+      #     orb-name: circleci/artifactory
+      #     requires: *prod-deploy_requires
+      #     filters:
+      #       branches:
+      #         ignore: /.*/
+      #       tags:
+      #         only: /master-patch.*/
 
-      - orb-tools/dev-promote-prod:
-          name: dev-promote-minor
-          context: orb-publishing
-          orb-name: circleci/artifactory
-          release: minor
-          requires: *prod-deploy_requires
-          filters:
-            branches:
-              ignore: /.*/
-            tags:
-              only: /master-minor.*/
+      # - orb-tools/dev-promote-prod:
+      #     name: dev-promote-minor
+      #     context: orb-publishing
+      #     orb-name: circleci/artifactory
+      #     release: minor
+      #     requires: *prod-deploy_requires
+      #     filters:
+      #       branches:
+      #         ignore: /.*/
+      #       tags:
+      #         only: /master-minor.*/
 
-      - orb-tools/dev-promote-prod:
-          name: dev-promote-major
-          context: orb-publishing
-          orb-name: circleci/artifactory
-          release: major
-          requires: *prod-deploy_requires
-          filters:
-            branches:
-              ignore: /.*/
-            tags:
-              only: /master-major.*/
+      # - orb-tools/dev-promote-prod:
+      #     name: dev-promote-major
+      #     context: orb-publishing
+      #     orb-name: circleci/artifactory
+      #     release: major
+      #     requires: *prod-deploy_requires
+      #     filters:
+      #       branches:
+      #         ignore: /.*/
+      #       tags:
+      #         only: /master-major.*/
