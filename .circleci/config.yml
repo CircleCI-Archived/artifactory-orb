@@ -28,13 +28,13 @@ jobs:
       # test without file spec
       - artifactory/upload:
           source: artifact1.jar
-          target: local-generic/commandfolder
+          target: local-generic/commandfolder1
 
       # test with file spec
       - artifactory/upload:
           use-file-spec: true
           file-spec: spec.json
-          spec-vars: "spec-pattern=*.jar;spec-target=local-generic/commandfolder"
+          spec-vars: "spec-pattern=*.jar;spec-target=local-generic/commandfolder2"
 
       - artifactory/build-integration:
           build-name: generic-artifact-command
