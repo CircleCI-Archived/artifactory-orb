@@ -1,25 +1,71 @@
+description: >
+  Upload files to Artifactory via `jfrog rt upload`. For details, see
+  https://jfrog.com/confluence/display/CLI/CLI+for+JFrog+Artifactory#CLIforJFrogArtifactory-UploadingFiles
+
 parameters:
+  use-file-spec:
+    type: boolean
+    default: false
+    description: >
+      Use a JFrog JSON File Spec to configure Artifactory upload, rather
+      than inline command arguments/options. Defaults to false. For details,
+      see https://jfrog.com/confluence/display/CLI/CLI+for+JFrog+Artifactory#CLIforJFrogArtifactory-UsingFileSpecs
+
   file-spec:
     type: string
-    default: ""
+    description: >
+      Absolute or relative path to a JFrog JSON File Spec. `use-file-spec`
+      must be set to `true`.
+
+  spec-vars:
+    type: string
+    description: >
+      List of variables in the form of "key1=value1;key2=value2;..." to be
+      replaced in the File Spec. `use-file-spec` must be set to `true`. In
+      the File Spec, the variables should be used as follows: ${key1}.
+
   source:
     type: string
+    description: >
+      Absolute or relative path to artifacts which should be uploaded to
+      Artifactory. Specify multiple artifacts by using wildcards.
+
   target:
     type: string
+    description: >
+      Target path in Artifactory for uploads, in the following format:
+      [repository_name]/[repository_path]
+
   build-name:
     type: string
+    default: ${CIRCLE_PROJECT_REPONAME}
+    description: >
+      Artifactory build name, defaults to the value of
+      $CIRCLE_PROJECT_REPONAME
+
   build-number:
     type: string
+    default: ${CIRCLE_BUILD_NUM}
+    description: >
+      Artifactory build number, defaults to the value of $CIRCLE_BUILD_NUM
+
 steps:
   - when:
-      condition: <<parameters.file-spec>>
+      condition: <<parameters.use-file-spec>>
       steps:
         - run:
             name: Upload Assets with JFrog CLI
-            command: jfrog rt upload <<parameters.source>> <<parameters.target>> --spec=<<parameters.file-spec>> --build-name=<<parameters.build-name>> --build-number=<<parameters.build-number>>
+            command: |
+              jfrog rt upload --spec=<<parameters.file-spec>> \
+                --spec-vars=<<parameters.spec-vars>> \
+                --build-name=<<parameters.build-name>> \
+                --build-number=<<parameters.build-number>>
   - unless:
-      condition: <<parameters.file-spec>>
+      condition: <<parameters.use-file-spec>>
       steps:
         - run:
             name: Upload Assets with JFrog CLI
-            command: jfrog rt upload <<parameters.source>> <<parameters.target>> --build-name=<<parameters.build-name>> --build-number=<<parameters.build-number>>
+            command: |
+              jfrog rt upload <<parameters.source>> <<parameters.target>> \
+                --build-name=<<parameters.build-name>> \
+                --build-number=<<parameters.build-number>>

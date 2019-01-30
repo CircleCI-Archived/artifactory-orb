@@ -15,19 +15,29 @@ jobs:
   all-commands:
     executor: node
     steps:
-      # These are the example steps for consuming the orb.
       - checkout
       - artifactory/install
       - artifactory/configure
-      - run: echo "not a jar" >> artifact.jar
+
+      - run:
+          name: create sample artifact files
+          command: |
+            echo "not a jar" > artifact1.jar
+            echo "not a jar" > artifact2.jar
+
       - artifactory/upload:
-          source: artifact.jar
+          name: upload-without-file-spec
+          source: artifact1.jar
           target: local-generic/commandfolder
-          build-name: generic-artifact-command
-          build-number: ${CIRCLE_BUILD_NUM}
+
+      - artifactory/upload:
+          name: upload-with-file-spec
+          use-file-spec: true
+          file-spec: spec.json
+          spec-vars: "spec-pattern=*.jar;spec-target=local-generic/commandfolder"
+
       - artifactory/build-integration:
           build-name: generic-artifact-command
-          build-number: ${CIRCLE_BUILD_NUM}
 
 # yaml anchor filters
 integration-dev_filters: &integration-dev_filters
@@ -95,9 +105,22 @@ workflows:
           context: orb-publishing
           source: artifact.jar
           target: local-generic/artifact.jar
-          build-name: generic-artifact
           build-steps:
             - run: echo "not a jar" > artifact.jar
+          filters: *integration-dev_filters
+
+      - artifactory/upload:
+          name: test-upload-file-spec-dev
+          context: orb-publishing
+          use-file-spec: true
+          file-spec: spec.json
+          spec-vars: "spec-pattern=*.jar;spec-target=local-generic/jobfolder"
+          build-steps:
+            - run:
+                name: create sample artifact files
+                command: |
+                  echo "not a jar" > artifact1.jar
+                  echo "not a jar" > artifact2.jar
           filters: *integration-dev_filters
 
       - artifactory/docker-publish:
@@ -136,9 +159,22 @@ workflows:
           context: orb-publishing
           source: artifact.jar
           target: local-generic/artifact.jar
-          build-name: generic-artifact
           build-steps:
             - run: echo "not a jar" > artifact.jar
+          filters: *integration-master_filters
+
+      - artifactory/upload:
+          name: test-upload-file-spec-master
+          context: orb-publishing
+          use-file-spec: true
+          file-spec: spec.json
+          spec-vars: "spec-pattern=*.jar;spec-target=local-generic/jobfolder"
+          build-steps:
+            - run:
+                name: create sample artifact files
+                command: |
+                  echo "not a jar" > artifact1.jar
+                  echo "not a jar" > artifact2.jar
           filters: *integration-master_filters
 
       - artifactory/docker-publish:
