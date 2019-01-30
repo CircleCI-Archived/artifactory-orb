@@ -1,9 +1,31 @@
+description: >
+  etc
+
+parameters:
+  artifactory-url:
+    type: env_var_name
+    default: ARTIFACTORY_URL
+    description: >
+      etc
+
+  artifactory-key:
+    type: env_var_name
+    default: ARTIFACTORY_API_KEY
+    description: >
+      etc
+
+  artifactory-user:
+    type: env_var_name
+    default: ARTIFACTORY_USER
+    description: >
+      etc
+
 steps:
   - run:
       name: Configure JFrog CLI
       command: |
-        : "${ARTIFACTORY_URL?Artifactory URL and API Key must be set as Environment variables before running this command.}"
-        : "${ARTIFACTORY_API_KEY?Artifactory URL and API Key must be set as Environment variables before running this command.}"
-        : "${ARTIFACTORY_USER?Artifactory URL and API Key must be set as Environment variables before running this command.}"
-        echo "configuring jfrog CLI with target ${ARTIFACTORY_USER}@${ARTIFACTORY_URL}"
-        jfrog rt c --user=${ARTIFACTORY_USER} --url=${ARTIFACTORY_URL} --apikey=${ARTIFACTORY_API_KEY} --interactive=false
+        : "${<<parameters.artifactory-url>>?Artifactory URL, API Key, and User must be set as Environment variables before running this command.}"
+        : "${<<parameters.artifactory-key>>?Artifactory URL, API Key, and User must be set as Environment variables before running this command.}"
+        : "${<<parameters.artifactory-user>>?Artifactory URL, API Key, and User must be set as Environment variables before running this command.}"
+        echo "configuring jfrog CLI with target ${<<parameters.artifactory-user>>}@${<<parameters.artifactory-url>>}"
+        jfrog rt c --user=${<<parameters.artifactory-user>>} --url=${<<parameters.artifactory-url>>} --apikey=${<<parameters.artifactory-key>>} --interactive=false
