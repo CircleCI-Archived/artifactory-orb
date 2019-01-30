@@ -18,10 +18,10 @@ steps:
             command: jfrog rt bag <<parameters.build-name>> <<parameters.build-number>>
   - when:
       condition: <<parameters.include-env>>
-        steps:
-          - run:
-              name: Collect Env. Details with JFrog CLI
-              command: jfrog rt bce <<parameters.build-name>> <<parameters.build-number>>
+      steps:
+        - run:
+            name: Collect Env. Details with JFrog CLI
+            command: jfrog rt bce <<parameters.build-name>> <<parameters.build-number>>
   - run:
       name: Publish Build Details Details with JFrog CLI
       command: jfrog rt bp <<parameters.build-name>> <<parameters.build-number>>
