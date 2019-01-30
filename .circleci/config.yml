@@ -34,7 +34,7 @@ jobs:
       - artifactory/upload:
           use-file-spec: true
           file-spec: spec.json
-          spec-vars: "spec-pattern=*.jar;spec-target=local-generic/commandfolder2/"
+          spec-vars: "spec-pattern=*.jar;spec-target=local-generic/commandfolder2"
 
       - artifactory/build-integration:
           build-name: generic-artifact-command
