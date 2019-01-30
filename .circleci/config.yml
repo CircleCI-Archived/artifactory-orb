@@ -23,7 +23,6 @@ jobs:
           name: create sample artifact files
           command: |
             echo "not a jar" > artifact1.jar
-            echo "not a jar" > artifact2.jar
 
       # test without file spec
       - artifactory/upload:
