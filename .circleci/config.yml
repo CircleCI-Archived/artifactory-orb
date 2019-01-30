@@ -25,13 +25,13 @@ jobs:
             echo "not a jar" > artifact1.jar
             echo "not a jar" > artifact2.jar
 
+      # test without file spec
       - artifactory/upload:
-          name: upload-without-file-spec
           source: artifact1.jar
           target: local-generic/commandfolder
 
+      # test with file spec
       - artifactory/upload:
-          name: upload-with-file-spec
           use-file-spec: true
           file-spec: spec.json
           spec-vars: "spec-pattern=*.jar;spec-target=local-generic/commandfolder"
