@@ -87,10 +87,12 @@ workflows:
       # triggered by non-master branch commits
       - all-commands:
           name: test-all-commands-dev
+          context: orb-publishing
           filters: *integration-dev_filters
 
       - artifactory/upload:
           name: test-upload-dev
+          context: orb-publishing
           source: artifact.jar
           target: local-generic/artifact.jar
           build-name: generic-artifact
@@ -100,6 +102,7 @@ workflows:
 
       - artifactory/docker-publish:
           name: test-publish-dev
+          context: orb-publishing
           docker-registry: orbdemos-docker.jfrog.io
           repository: docker
           build-name: hello-alpine
@@ -111,6 +114,7 @@ workflows:
 
       - artifactory/docker-publish:
           name: test-publish-custom-dev
+          context: orb-publishing
           docker-registry: orbdemos-docker.jfrog.io
           repository: docker
           build-name: hello-alpine-custom
@@ -124,10 +128,12 @@ workflows:
       # triggered by master branch commits
       - all-commands:
           name: test-all-commands-master
+          context: orb-publishing
           filters: *integration-master_filters
 
       - artifactory/upload:
           name: test-upload-master
+          context: orb-publishing
           source: artifact.jar
           target: local-generic/artifact.jar
           build-name: generic-artifact
@@ -137,6 +143,7 @@ workflows:
 
       - artifactory/docker-publish:
           name: test-publish-master
+          context: orb-publishing
           docker-registry: orbdemos-docker.jfrog.io
           repository: docker
           build-name: hello-alpine
@@ -148,6 +155,7 @@ workflows:
 
       - artifactory/docker-publish:
           name: test-publish-custom-master
+          context: orb-publishing
           docker-registry: orbdemos-docker.jfrog.io
           repository: docker
           build-name: hello-alpine-custom
@@ -161,8 +169,8 @@ workflows:
       # patch, minor, or major publishing
       - orb-tools/dev-promote-prod:
           name: dev-promote-patch
-          orb-name: circleci/artifactory
           context: orb-publishing
+          orb-name: circleci/artifactory
           requires: *prod-deploy_requires
           filters:
             branches:
@@ -172,9 +180,9 @@ workflows:
 
       - orb-tools/dev-promote-prod:
           name: dev-promote-minor
+          context: orb-publishing
           orb-name: circleci/artifactory
           release: minor
-          context: orb-publishing
           requires: *prod-deploy_requires
           filters:
             branches:
@@ -184,9 +192,9 @@ workflows:
 
       - orb-tools/dev-promote-prod:
           name: dev-promote-major
+          context: orb-publishing
           orb-name: circleci/artifactory
           release: major
-          context: orb-publishing
           requires: *prod-deploy_requires
           filters:
             branches:
