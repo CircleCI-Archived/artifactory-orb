@@ -13,12 +13,14 @@ parameters:
 
   file-spec:
     type: string
+    default: ""
     description: >
       Absolute or relative path to a JFrog JSON File Spec. `use-file-spec`
       must be set to `true`.
 
   spec-vars:
     type: string
+    default: ""
     description: >
       List of variables in the form of "key1=value1;key2=value2;..." to be
       replaced in the File Spec. `use-file-spec` must be set to `true`. In
