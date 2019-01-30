@@ -60,12 +60,9 @@ steps:
         - run:
             name: Upload Assets with JFrog CLI
             command: |
-              jfrog rt upload \
-                <<#parameters.source>><<parameters.source>><</parameters.source>> \
-                <<#parameters.target>><<parameters.target>><</parameters.target>> \
-                --spec=<<parameters.file-spec>> \
-                --spec-vars=<<parameters.spec-vars>> \
-                --build-name=<<parameters.build-name>> \
+              jfrog rt upload <<#parameters.source>><<parameters.source>><</parameters.source>> \
+                <<#parameters.target>><<parameters.target>><</parameters.target>> --spec=<<parameters.file-spec>> \
+                <<#parameters.spec-vars>>--spec-vars=<<parameters.spec-vars>><</parameters.spec-vars>> --build-name=<<parameters.build-name>> \
                 --build-number=<<parameters.build-number>>
   - unless:
       condition: <<parameters.use-file-spec>>
