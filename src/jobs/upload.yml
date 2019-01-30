@@ -96,23 +96,14 @@ steps:
 
   - configure
 
-  - when:
-      condition: <<parameters.use-file-spec>>
-      steps:
-        - upload:
-            file-spec: <<parameters.file-spec>>
-            spec-vars: <<parameters.spec-vars>>
-            build-name: <<parameters.build-name>>
-            build-number: <<parameters.build-number>>
-
-  - unless:
-      condition: <<parameters.use-file-spec>>
-      steps:
-        - upload:
-            source: <<parameters.source>>
-            target: <<parameters.target>>
-            build-name: <<parameters.build-name>>
-            build-number: <<parameters.build-number>>
+  - upload:
+      use-file-spec: <<parameters.use-file-spec>>
+      file-spec: <<parameters.file-spec>>
+      spec-vars: <<parameters.spec-vars>>
+      source: <<parameters.source>>
+      target: <<parameters.target>>
+      build-name: <<parameters.build-name>>
+      build-number: <<parameters.build-number>>
 
   - when:
       condition: <<parameters.build-integration>>
