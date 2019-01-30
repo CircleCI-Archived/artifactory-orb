@@ -13,14 +13,12 @@ parameters:
 
   file-spec:
     type: string
-    default: ""
     description: >
       Absolute or relative path to a JFrog JSON File Spec. `use-file-spec`
       must be set to `true`.
 
   spec-vars:
     type: string
-    default: ""
     description: >
       List of variables in the form of "key1=value1;key2=value2;..." to be
       replaced in the File Spec. `use-file-spec` must be set to `true`. In
@@ -52,22 +50,13 @@ parameters:
       Artifactory build number, defaults to the value of $CIRCLE_BUILD_NUM
 
 steps:
-  - when:
-      condition: <<parameters.use-file-spec>>
-      steps:
-        - run:
-            name: Upload Assets with JFrog CLI
-            command: |
-              jfrog rt upload --spec=<<parameters.file-spec>> \
-                --spec-vars=<<parameters.spec-vars>> \
-                --build-name=<<parameters.build-name>> \
-                --build-number=<<parameters.build-number>>
-  - unless:
-      condition: <<parameters.use-file-spec>>
-      steps:
-        - run:
-            name: Upload Assets with JFrog CLI
-            command: |
-              jfrog rt upload <<parameters.source>> <<parameters.target>> \
-                --build-name=<<parameters.build-name>> \
-                --build-number=<<parameters.build-number>>
+  - run:
+      name: Upload Assets with JFrog CLI
+      command: |
+        jfrog rt upload \
+          <<#parameters.source>><<parameters.source>><</parameters.source>> \
+          <<#parameters.target>><<parameters.target>><</parameters.target>> \
+          <<#parameters.use-file-spec>>--spec=<<parameters.file-spec>> \
+          --spec-vars=<<parameters.spec-vars>><</parameters.use-file-spec>> \
+          --build-name=<<parameters.build-name>> \
+          --build-number=<<parameters.build-number>>
