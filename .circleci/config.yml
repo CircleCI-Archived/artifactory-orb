@@ -22,11 +22,12 @@ jobs:
       - run:
           name: create sample artifact files
           command: |
-            echo "not a jar" > artifact.jar
+            echo "not a jar" > artifact1.jar
+            echo "not a jar" > artifact2.jar
 
       # test without file spec
       - artifactory/upload:
-          source: artifact.jar
+          source: "artifact*.jar"
           target: orb-testing/all-commands/no-file-spec
 
       # test with file spec
