@@ -120,7 +120,7 @@ workflows:
           context: orb-publishing
           use-file-spec: true
           file-spec: spec.json
-          spec-vars: spec-pattern=*.jar;spec-target=orb-testing/all-commands/file-spec/
+          spec-vars: spec-pattern=*.jar;spec-target=orb-testing/upload-job/file-spec/
           build-steps:
             - run:
                 name: create sample artifact files
@@ -178,7 +178,7 @@ workflows:
           context: orb-publishing
           use-file-spec: true
           file-spec: spec.json
-          spec-vars: spec-pattern=*.jar;spec-target=orb-testing/all-commands/file-spec/
+          spec-vars: spec-pattern=*.jar;spec-target=orb-testing/upload-job/file-spec/
           build-steps:
             - run:
                 name: create sample artifact files
