@@ -28,7 +28,7 @@ jobs:
       # test multiple files without spec
       - artifactory/upload:
           source: artifact*.jar
-          target: orb-testing/all-commands/no-file-spec
+          target: orb-testing/all-commands/no-file-spec/
 
       # test with file spec
       - artifactory/upload:
@@ -106,7 +106,7 @@ workflows:
           name: test-upload-dev
           context: orb-publishing
           source: artifact*.jar
-          target: orb-testing/upload-job/no-file-spec
+          target: orb-testing/upload-job/no-file-spec/
           build-steps:
             - run:
                 name: create sample artifact files
@@ -164,7 +164,7 @@ workflows:
           name: test-upload-master
           context: orb-publishing
           source: artifact.jar
-          target: orb-testing/upload-job/no-file-spec
+          target: orb-testing/upload-job/no-file-spec/
           build-steps:
             - run:
                 name: create sample artifact files
