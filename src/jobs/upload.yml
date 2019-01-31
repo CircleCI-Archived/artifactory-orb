@@ -1,20 +1,22 @@
+description: Upload artifacts to Artifactory
+
 parameters:
   docker:
     type: string
-    default: 'circleci/openjdk:8'
+    default: circleci/openjdk:8
     description: Docker image to use for build
 
   build-steps:
     type: steps
     default: []
     description: >
-      Steps to generate artifacts. Alternately provide `workspace-path`
+      Steps to generate artifacts. Alternately provide `workspace-path`.
 
   workspace-path:
     type: string
-    default: ''
+    default: ""
     description: >
-      The key of a workflow workspace which contains artifact.
+      The key of a workflow workspace which contains artifacts.
       Alternately provide `build-steps`
 
   use-file-spec:
@@ -88,7 +90,7 @@ steps:
 
   - when:
       condition: <<parameters.build-steps>>
-      steps: << parameters.build-steps >>
+      steps: <<parameters.build-steps>>
 
   - when:
       condition: <<parameters.workspace-path>>

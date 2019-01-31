@@ -1,24 +1,24 @@
-description: >
-  etc
+description: Configure the JFrog CLI
 
 parameters:
   artifactory-url:
     type: env_var_name
     default: ARTIFACTORY_URL
     description: >
-      etc
+      Name of environment variable storing the URL of your Artifactory
+      instance
 
   artifactory-key:
     type: env_var_name
     default: ARTIFACTORY_API_KEY
     description: >
-      etc
+      Name of environment variable storing your Artifactory API key
 
   artifactory-user:
     type: env_var_name
     default: ARTIFACTORY_USER
     description: >
-      etc
+      Name of environment variable storing your Artifactory username
 
 steps:
   - run:
