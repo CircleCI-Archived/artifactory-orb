@@ -2,8 +2,7 @@
   "files": [
     {
       "pattern": "${spec-pattern}",
-      "target": "${spec-target}",
-      "regexp": "true"
+      "target": "${spec-target}"
     }
   ]
 }

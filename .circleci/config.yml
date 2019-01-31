@@ -27,14 +27,14 @@ jobs:
 
       # test without file spec
       - artifactory/upload:
-          source: "artifact*.jar"
+          source: artifact*.jar
           target: orb-testing/all-commands/no-file-spec
 
       # test with file spec
       - artifactory/upload:
           use-file-spec: true
           file-spec: spec.json
-          spec-vars: "spec-pattern=*.jar;spec-target=orb-testing/all-commands/file-spec/"
+          spec-vars: spec-pattern="*.jar";spec-target="orb-testing/all-commands/file-spec/""
 
       # - artifactory/build-integration:
       #     build-name: generic-artifact-command
