@@ -41,7 +41,9 @@ jobs:
       - run:
           name: build sample image
           command: |
-            docker build -t $DOCKERTAG docker-publish-assets
+            docker build -t \
+              orbdemos-docker.jfrog.io/hello-world-default:1.0-${CIRCLE_BUILD_NUM} \
+              docker-publish-assets
 
       - artifactory/docker-publish:
           docker-registry: orbdemos-docker.jfrog.io
