@@ -1,3 +1,7 @@
+description: >
+  Log into a JFrog Docker registry, build a Docker image, and push it
+  to the registry
+
 parameters:
   artifactory-user:
     type: env_var_name
@@ -13,11 +17,10 @@ parameters:
 
   docker-steps:
     type: steps
+    default: [run: "docker build -t ${DOCKERTAG} ."]
     description: >
-      Steps to Build and Tag image, defaults to `docker build .
-      -t ${DOCKERTAG}`
-    default:
-      - run: docker build . -t ${DOCKERTAG}
+      Steps to Build and Tag image, defaults to `docker build
+      -t ${DOCKERTAG} .`
 
   docker-tag:
     type: string
@@ -55,19 +58,26 @@ parameters:
   include-git:
     type: boolean
     default: true
+    description: >
+      Collect git details as part of Build Integration? For details, see
+      https://jfrog.com/confluence/display/CLI/CLI+for+JFrog+Artifactory#CLIforJFrogArtifactory-BuildIntegration-AddingGitInformation
 
   include-env:
     type: boolean
     default: true
+    description: >
+      Collect environment variable details as part of Build Integration? For
+      details, see https://jfrog.com/confluence/display/CLI/CLI+for+JFrog+Artifactory#CLIforJFrogArtifactory-BuildIntegration-CollectingEnvironmentVariables
 
   dependency-steps:
     type: steps
+    default: []
     description: >
       Include any additional steps to collect dependency information
       before `jfrog rt bp` is executed.
-    default: []
 
 executor: machine
+
 environment:
   RAWTAG: <<parameters.docker-tag>>
 
@@ -81,7 +91,7 @@ steps:
       artifactory-key: <<parameters.artifactory-key>>
       docker-registry: <<parameters.docker-registry>>
 
-  # if user passed a variable in the <<docker-tag>> it wont be
+  # if user passed a variable in the <<docker-tag>>, it won't be
   # interpolated. We process to a new safe variable.
 
   - run: eval echo "export DOCKERTAG=${RAWTAG}" >> $BASH_ENV
