@@ -35,7 +35,11 @@ parameters:
 
 steps:
   - run:
-      name: Docker Push to JFrog Registry
+      name: Log into JFrog Docker registry
       command: |
         docker login -u $<<parameters.artifactory-user>> -p $<<parameters.artifactory-key>> <<parameters.docker-registry>>
+
+  - run:
+      name: Docker push to JFrog registry
+      command: |
         jfrog rt dp <<parameters.docker-tag>> <<parameters.repository>> --build-name=<<parameters.build-name>> --build-number=<<parameters.build-number>>

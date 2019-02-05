@@ -58,7 +58,7 @@ steps:
       condition: <<parameters.use-file-spec>>
       steps:
         - run:
-            name: Upload Assets with JFrog CLI
+            name: Upload assets with JFrog CLI
             command: |
               jfrog rt upload \
                 <<#parameters.source>>"<<parameters.source>>"<</parameters.source>> \
@@ -71,7 +71,7 @@ steps:
       condition: <<parameters.use-file-spec>>
       steps:
         - run:
-            name: Upload Assets with JFrog CLI
+            name: Upload assets with JFrog CLI
             command: |
               jfrog rt upload "<<parameters.source>>" <<parameters.target>> \
                 --build-name=<<parameters.build-name>> \
