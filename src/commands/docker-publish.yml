@@ -1,19 +1,41 @@
 parameters:
+  artifactory-user:
+    type: env_var_name
+    default: ARTIFACTORY_USER
+    description: >
+      Name of environment variable storing your Artifactory username
+
+  artifactory-key:
+    type: env_var_name
+    default: ARTIFACTORY_API_KEY
+    description: >
+      Name of environment variable storing your Artifactory API key
+
   docker-registry:
     type: string
+
   docker-tag:
     type: string
+
   repository:
     type: string
+
   build-name:
     type: string
+    default: ${CIRCLE_PROJECT_REPONAME}
+    description: >
+      Artifactory build name, defaults to the value of
+      $CIRCLE_PROJECT_REPONAME
+
   build-number:
     type: string
-  build-integration:
-    type: boolean
+    default: ${CIRCLE_BUILD_NUM}
+    description: >
+      Artifactory build number, defaults to the value of $CIRCLE_BUILD_NUM
+
 steps:
   - run:
       name: Docker Push to JFrog Registry
       command: |
-        docker login -u ${ARTIFACTORY_USER} -p ${ARTIFACTORY_API_KEY} <<parameters.docker-registry>>
+        docker login -u $<<parameters.artifactory-user>> -p $<<parameters.artifactory-key>> <<parameters.docker-registry>>
         jfrog rt dp <<parameters.docker-tag>> <<parameters.repository>> --build-name=<<parameters.build-name>> --build-number=<<parameters.build-number>>

@@ -38,7 +38,11 @@ jobs:
 
       - artifactory/build-integration
 
-      # - artifactory/docker-publish:
+      - artifactory/docker-publish:
+          docker-registry: orbdemos-docker.jfrog.io
+          docker-tag: orbdemos-docker.jfrog.io/hello-world-default:1.0-${CIRCLE_BUILD_NUM}
+          repository: docker
+
 
 # yaml anchor filters
 integration-dev_filters: &integration-dev_filters
