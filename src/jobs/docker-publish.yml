@@ -1,4 +1,21 @@
 parameters:
+  artifactory-user:
+    type: env_var_name
+    default: ARTIFACTORY_USER
+    description: >
+      Name of environment variable storing your Artifactory username
+
+  artifactory-key:
+    type: env_var_name
+    default: ARTIFACTORY_API_KEY
+    description: >
+      Name of environment variable storing your Artifactory API key
+
+  docker-registry:
+    type: string
+    description: >
+      JFrog (or other) Docker registry to log into
+
   docker-steps:
     type: steps
     description: >
@@ -6,63 +23,85 @@ parameters:
       -t ${DOCKERTAG}`
     default:
       - run: docker build . -t ${DOCKERTAG}
+
   docker-tag:
     type: string
     description: >
       Fully qualified(including reigstry) tag to use when issuing
       docker push commands. Will also be exposed to 'docker-steps'
       as a ${DOCKERTAG}
+
   repository:
     type: string
-    description: "Remote repsository name in artifactory"
+    description: >
+      Remote repository name in JFrog Artifactory
+
   docker-registry:
     type: string
     description: >
       The URL to use for docker login, depends on webServer
       configuration of Artifactory:
       https://jfrog.com/confluence/display/RTF/Getting+Started+with+Artifactory+as+a+Docker+Registry
+
   build-name:
     type: string
     default: '${CIRCLE_PROJECT_REPONAME}'
     description: "Name used in Artifactory Build Integration"
+
   build-number:
     type: string
     default: '${CIRCLE_BUILD_NUM}'
     description: "Build Number used in Artifactory Build Integration"
+
   build-integration:
     type: boolean
     default: true
     description: "Should Artifactory 'Build Publish' task be executed"
+
   include-git:
     type: boolean
     default: true
+
   include-env:
     type: boolean
     default: true
+
   dependency-steps:
     type: steps
     description: >
       Include any additional steps to collect dependency information
       before `jfrog rt bp` is executed.
     default: []
-machine: true
+
+executor: machine
 environment:
   RAWTAG: <<parameters.docker-tag>>
+
 steps:
   - checkout
   - install
   - configure
+
+  - docker-login:
+      artifactory-user: <<parameters.artifactory-user>>
+      artifactory-key: <<parameters.artifactory-key>>
+      docker-registry: <<parameters.docker-registry>>
+
   # if user passed a variable in the <<docker-tag>> it wont be
   # interpolated. We process to a new safe variable.
+
   - run: eval echo "export DOCKERTAG=${RAWTAG}" >> $BASH_ENV
+
   - steps: <<parameters.dependency-steps>>
+
   - steps: << parameters.docker-steps >>
+
   - docker-publish:
-      docker-registry: <<parameters.docker-registry>>
       build-name: <<parameters.build-name>>
       build-number: <<parameters.build-number>>
       docker-tag: <<parameters.docker-tag>>
       repository: <<parameters.repository>>
+
   - when:
       condition: <<parameters.build-integration>>
       steps:

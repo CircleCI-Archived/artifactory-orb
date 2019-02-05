@@ -1,24 +1,16 @@
+description: >
+  Push an image to a JFrog Docker registry
+
 parameters:
-  artifactory-user:
-    type: env_var_name
-    default: ARTIFACTORY_USER
-    description: >
-      Name of environment variable storing your Artifactory username
-
-  artifactory-key:
-    type: env_var_name
-    default: ARTIFACTORY_API_KEY
-    description: >
-      Name of environment variable storing your Artifactory API key
-
-  docker-registry:
-    type: string
-
   docker-tag:
     type: string
+    description: >
+      Full named reference to Docker image (repo/name:tag)
 
   repository:
     type: string
+    description: >
+      Remote repository name in JFrog Artifactory
 
   build-name:
     type: string
@@ -34,11 +26,6 @@ parameters:
       Artifactory build number, defaults to the value of $CIRCLE_BUILD_NUM
 
 steps:
-  - run:
-      name: Log into JFrog Docker registry
-      command: |
-        docker login -u $<<parameters.artifactory-user>> -p $<<parameters.artifactory-key>> <<parameters.docker-registry>>
-
   - run:
       name: Docker push to JFrog registry
       command: |

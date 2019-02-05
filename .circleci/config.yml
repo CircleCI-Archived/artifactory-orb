@@ -38,6 +38,9 @@ jobs:
 
       - artifactory/build-integration
 
+      - artifactory/docker-login:
+          docker-registry: orbdemos-docker.jfrog.io
+
       - run:
           name: build sample image
           command: |
@@ -46,7 +49,6 @@ jobs:
               docker-publish-assets
 
       - artifactory/docker-publish:
-          docker-registry: orbdemos-docker.jfrog.io
           docker-tag: orbdemos-docker.jfrog.io/hello-world-default:1.0-${CIRCLE_BUILD_NUM}
           repository: docker
 
