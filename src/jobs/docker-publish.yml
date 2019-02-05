@@ -63,7 +63,6 @@ steps:
       build-number: <<parameters.build-number>>
       docker-tag: <<parameters.docker-tag>>
       repository: <<parameters.repository>>
-      build-integration: <<parameters.build-integration>>
   - when:
       condition: <<parameters.build-integration>>
       steps:
