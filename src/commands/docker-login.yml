@@ -17,7 +17,8 @@ parameters:
   docker-registry:
     type: string
     description: >
-      JFrog (or other) Docker registry to log into
+      The URL to use for docker login, depends on web server configuration
+      of Artifactory: https://jfrog.com/confluence/display/RTF/Getting+Started+with+Artifactory+as+a+Docker+Registry
 
 steps:
   - run:
