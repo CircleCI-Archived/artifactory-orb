@@ -36,8 +36,7 @@ jobs:
           file-spec: spec.json
           spec-vars: spec-pattern=*.jar;spec-target=orb-testing/all-commands/file-spec/
 
-      # - artifactory/build-integration:
-      #     build-name: generic-artifact-command
+      - artifactory/build-integration
 
       # - artifactory/docker-publish:
 
