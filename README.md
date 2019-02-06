@@ -1,4 +1,4 @@
-# Artifactory Orb ![CircleCI status](https://circleci.com/gh/CircleCI-Public/artifactory-orb.svg "CircleCI status")
+# Artifactory Orb ![CircleCI status](https://circleci.com/gh/CircleCI-Public/artifactory-orb.svg "CircleCI status") [![CircleCI Orb Version](https://img.shields.io/badge/endpoint.svg?url=https://orb-badge.cci.feliciano.tech/circleci/artifactory)](https://circleci.com/orbs/registry/orb/circleci/artifactory)
 
 CircleCI Artifactory orb created in partnership with JFrog.
 
