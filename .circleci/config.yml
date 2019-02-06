@@ -172,7 +172,7 @@ workflows:
       - artifactory/upload:
           name: test-upload-master
           context: orb-publishing
-          source: artifact.jar
+          source: artifact*.jar
           target: orb-testing/upload-job/no-file-spec/
           build-steps:
             - run:
