@@ -1,3 +1,6 @@
+description: >
+  Publish build information to JFrog Artifactory with `jfrog rt bp`
+
 parameters:
   include-git:
     type: boolean

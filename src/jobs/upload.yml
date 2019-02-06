@@ -31,8 +31,8 @@ parameters:
     type: string
     default: ""
     description: >
-      Absolute or relative path to a JFrog JSON File Spec. `use-file-spec`
-      must be set to `true`.
+      Absolute or relative path to a JFrog JSON File Spec. To provide a
+      File Spec, the `use-file-spec` parameter must be set to `true`.
 
   spec-vars:
     type: string

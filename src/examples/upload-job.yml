@@ -1,0 +1,18 @@
+description: >
+  Use the `upload` job to upload artifacts to JFrog's Artifactory
+
+usage:
+  version: 2.1
+
+  orbs:
+    artifactory: circleci/artifactory@1.0.0
+
+  workflows:
+    publish:
+      jobs:
+        - artifactory/upload:
+            name: Publish Maven Jar
+            source: test/artifact.jar
+            target: repo/path
+            build-steps:
+              - run: mvn install -B
