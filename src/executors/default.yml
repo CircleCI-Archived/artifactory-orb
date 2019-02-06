@@ -1,6 +1,13 @@
+description: >
+  The default executor for jobs in this orb. Specify your own Docker
+  image or use the default (circleci/openjdk:8).
+
 parameters:
   docker-image:
     type: string
     default: "circleci/openjdk:8"
+    description: >
+      Docker image to use in this executor, defaults to circleci/openjdk:8
+
 docker:
   - image: <<parameters.docker-image>>

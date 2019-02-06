@@ -1,0 +1,19 @@
+description: >
+  Install and configure the JFrog CLI, then upload build information
+  (includes git and environment info by default) to JFrog Artifactory
+
+usage:
+  version: 2.1
+
+  orbs:
+    artifactory: circleci/artifactory@1.0.0
+
+  jobs:
+    build:
+      docker:
+        - image: circleci/node:10
+      steps:
+        - checkout
+        - artifactory/install
+        - artifactory/configure
+        - artifactory/build-integration

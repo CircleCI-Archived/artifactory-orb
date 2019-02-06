@@ -1,158 +1,256 @@
 version: 2.1
 
-workflows:
-  version: 2
-  test-orb:
-    jobs:
-      - test-locally
-      - test-dev:
-          requires:
-            - test-locally
-      - publish:
-          requires:
-            - test-dev
-          filters:
-            branches:
-              only: master
-      - smoke-test:
-          requires:
-            - publish
-          filters:
-            branches:
-              only: master
+orbs:
+  artifactory: circleci/artifactory@dev:alpha
+  cli: circleci/circleci-cli@0.1.2
+  orb-tools: circleci/orb-tools@7.3.0
+
+executors:
+  node:
+    resource_class: small
+    docker:
+      - image: circleci/node:10
 
 jobs:
-  test-locally:
-    docker:
-      - image: circleci/node:10
-    working_directory: ~/repo
+  all-commands:
+    executor: artifactory/machine
     steps:
       - checkout
-      - install-circleci
+      - artifactory/install
+      - artifactory/configure
+
       - run:
-          name: Pack and Validate
+          name: create sample artifact files
           command: |
-            circleci config pack src/ > packed.yml
-            circleci orb validate packed.yml --token ${CIRCLE_API_TOKEN}
-      - install-bats
+            echo "not a jar" > artifact1.jar
+            echo "not a jar" > artifact2.jar
+
+      # test multiple files without spec
+      - artifactory/upload:
+          source: artifact*.jar
+          target: orb-testing/all-commands/no-file-spec/
+
+      # test with file spec
+      - artifactory/upload:
+          use-file-spec: true
+          file-spec: spec.json
+          spec-vars: spec-pattern=*.jar;spec-target=orb-testing/all-commands/file-spec/
+
+      - artifactory/build-integration
+
+      - artifactory/docker-login:
+          docker-registry: orbdemos-docker.jfrog.io
+
       - run:
-          name: Inline Tests using BATS
+          name: build sample image
           command: |
-            # skip running full builds
-            bats tests/test_expansion.bats
+            docker build -t \
+              orbdemos-docker.jfrog.io/hello-world-default:1.0-${CIRCLE_BUILD_NUM} \
+              docker-publish-assets
 
-  test-dev:
-    machine: true
-    working_directory: ~/repo
-    steps:
-      - checkout
-      - install-circleci
-      - run:
-          name: Publish Dev
-          command: |
-            circleci config pack src/ > packed.yml
-            circleci orb validate packed.yml --token ${CIRCLE_API_TOKEN}
-            circleci orb publish packed.yml circleci/artifactory@dev:${CIRCLE_BRANCH}-${CIRCLE_SHA1} --token ${CIRCLE_API_TOKEN}
-      - install-bats
-      - run:
-          name: Import Tests using BATS
-          command: |
-            export BATS_IMPORT_DEV_ORB="circleci/artifactory@dev:${CIRCLE_BRANCH}-${CIRCLE_SHA1}"
-            bats tests
+      - artifactory/docker-publish:
+          docker-tag: orbdemos-docker.jfrog.io/hello-world-default:1.0-${CIRCLE_BUILD_NUM}
+          repository: docker
 
-  publish:
-    machine: true
-    working_directory: ~/repo
-    steps:
-      - checkout
-      - install-circleci
-      - run:
-          name: Promote to prod
-          command: |
-            circleci orb publish promote circleci/artifactory@dev:${CIRCLE_BRANCH}-${CIRCLE_SHA1} patch --token ${CIRCLE_API_TOKEN}
-      - install-bats
-      - run:
-          name: Import Tests using BATS
-          command: |
-            export BATS_IMPORT_DEV_ORB="circleci/artifactory@volatile"
-            bats tests
+# yaml anchor filters
+integration-dev_filters: &integration-dev_filters
+  branches:
+    ignore: /.*/
+  tags:
+    only: /integration-.*/
 
-  smoke-test:
-    docker:
-      - image: circleci/node:10
-    working_directory: ~/repo
-    steps:
+integration-master_filters: &integration-master_filters
+  branches:
+    ignore: /.*/
+  tags:
+    only: /master-.*/
 
-      # the trigger build api does not return any workflow or build IDs, 
-      # so we naively assume we are the only thing to trigger jobs on a special branch.
-      - run:
-          name: Wait for any previous jobs to complete...
-          command: |
-            COUNT=$(curl https://circleci.com/api/v1.1/project/github/eddiewebb/artifactory-orb-test/tree/smoke-test?filter=running 2>/dev/null | jq length)
-            echo "Monitoring Build: $BUILD_URL for status"
-            echo "Visit https://circleci.com/api/v1.1/project/github/eddiewebb/artifactory-orb-test/tree/smoke-test?filter=running to see status"
-            while [ $COUNT -gt 0 ]; do
-              sleep 2
-              COUNT=$(curl https://circleci.com/api/v1.1/project/github/eddiewebb/artifactory-orb-test/tree/smoke-test?filter=running 2>/dev/null | jq length)
-            done
-            echo "No running builds on smoke-test branch, proceed with triggering"
-      - run:
-          name: Trigger test project
-          command: |
-            curl -X POST --header "Content-Type: application/json"  -d '{"branch":"smoke-test"}' https://circleci.com/api/v1.1/project/github/eddiewebb/artifactory-orb-test/build?circle-token=${CIRCLE_API_TOKEN}
-            sleep 10 # API does not return Job #, wait a bit t enure it bets queued .
-      - run:
-          name: Poll for result
-          command: |
-            curl https://circleci.com/api/v1.1/project/github/eddiewebb/artifactory-orb-test/tree/smoke-test?limit=1 > build-result.json
-            BUILD_URL=$(cat build-result.json | jq -r '.[0].build_url')
-            echo "Monitoring Build: $BUILD_URL for status"
-            while true; do
-              curl https://circleci.com/api/v1.1/project/github/eddiewebb/artifactory-orb-test/tree/smoke-test?limit=1 > build-result.json
-              LIFECYCLE=$(cat build-result.json | jq -r '.[0].lifecycle')
-              if [ "$LIFECYCLE" == "finished" ];then
-                STATUS=$(cat build-result.json | jq -r '.[0].status')
-                if [ "$STATUS" == "success" ];then 
-                  echo "Test project build successful."
-                  exit 0
-                else
-                  exit 1
-                fi
-              else
-                sleep 10
-              fi
-            done
+prod-deploy_requires: &prod-deploy_requires
+  [test-all-commands-master, test-upload-master, test-publish-master, test-publish-custom-master]
 
+workflows:
+  lint_pack-validate_publish-dev:
+    jobs:
+      - orb-tools/lint:
+          lint-dir: src
 
+      - orb-tools/pack:
+          requires:
+            - orb-tools/lint
 
+      - orb-tools/publish-dev:
+          orb-name: circleci/artifactory
+          context: orb-publishing
+          requires:
+            - orb-tools/pack
 
+      - orb-tools/trigger-integration-workflow:
+          name: trigger-integration-dev
+          context: orb-publishing
+          ssh-fingerprints: 31:25:5b:d4:ce:5b:1f:81:fe:b3:c2:b5:ac:f2:55:8f
+          requires:
+            - orb-tools/publish-dev
+          filters:
+            branches:
+              ignore: master
 
-commands:
-  install-bats:
-    description: installs the BATS bash testing tool
-    steps:
-      - run:      
-          name: Install BATS (bash testing)
-          command: |
-            cd /tmp && git clone https://github.com/bats-core/bats-core.git && cd bats-core
-            sudo ./install.sh /usr/local
-      - run:
-          name: Install YQ
-          command: |
-            curl -L https://github.com/mikefarah/yq/releases/download/2.1.1/yq_linux_amd64 -o yq
-            chmod a+x yq
-            sudo mv yq /usr/local/bin/
-  install-circleci:
-    description: installs the new CIrcleCI CLI with orb support
-    steps:
-      - run: 
-          name: Install CircleCI CLI (the new one)
-          command: |
-            curl https://raw.githubusercontent.com/CircleCI-Public/circleci-cli/master/install.sh --fail --show-error | sudo bash
-            circleci version
-            echo "Run circleci help"              
-            circleci help
-            echo -e "token: ${CIRCLE_API_TOKEN}\nverbose: false" > ~/.circleci/cli.yml
+      - orb-tools/trigger-integration-workflow:
+          name: trigger-integration-master
+          context: orb-publishing
+          ssh-fingerprints: 31:25:5b:d4:ce:5b:1f:81:fe:b3:c2:b5:ac:f2:55:8f
+          tag: master
+          requires:
+            - orb-tools/publish-dev
+          filters:
+            branches:
+              only: master
 
+  integration_tests-prod_deploy:
+    jobs:
+      # triggered by non-master branch commits
+      - all-commands:
+          name: test-all-commands-dev
+          context: orb-publishing
+          filters: *integration-dev_filters
 
+      - artifactory/upload:
+          name: test-upload-dev
+          context: orb-publishing
+          source: artifact*.jar
+          target: orb-testing/upload-job/no-file-spec/
+          build-steps:
+            - run:
+                name: create sample artifact files
+                command: |
+                  echo "not a jar" > artifact1.jar
+                  echo "not a jar" > artifact2.jar
+          filters: *integration-dev_filters
 
+      - artifactory/upload:
+          name: test-upload-file-spec-dev
+          context: orb-publishing
+          use-file-spec: true
+          file-spec: spec.json
+          spec-vars: spec-pattern=*.jar;spec-target=orb-testing/upload-job/file-spec/
+          build-steps:
+            - run:
+                name: create sample artifact files
+                command: |
+                  echo "not a jar" > artifact1.jar
+                  echo "not a jar" > artifact2.jar
+          filters: *integration-dev_filters
+
+      - artifactory/docker-publish:
+          name: test-publish-dev
+          context: orb-publishing
+          docker-registry: orbdemos-docker.jfrog.io
+          repository: docker
+          build-name: hello-alpine
+          docker-tag: orbdemos-docker.jfrog.io/hello-world-default:1.0-${CIRCLE_BUILD_NUM}
+          pre-steps: [checkout, run: "cp docker-publish-assets/* ."]
+          filters: *integration-dev_filters
+
+      - artifactory/docker-publish:
+          name: test-publish-custom-dev
+          context: orb-publishing
+          docker-registry: orbdemos-docker.jfrog.io
+          repository: docker
+          build-name: hello-alpine-custom
+          docker-tag: orbdemos-docker.jfrog.io/hello-alpine-custom:1.0-${CIRCLE_BUILD_NUM}
+          docker-steps:
+            - run: echo ${DOCKERTAG}
+            - run: jfrog rt dl local-generic/artifact.jar docker-publish-assets/ --build-name=hello-alpine-custom --build-number=${CIRCLE_BUILD_NUM}
+            - run: docker build -t $DOCKERTAG docker-publish-assets
+          filters: *integration-dev_filters
+
+      # triggered by master branch commits
+      - all-commands:
+          name: test-all-commands-master
+          context: orb-publishing
+          filters: *integration-master_filters
+
+      - artifactory/upload:
+          name: test-upload-master
+          context: orb-publishing
+          source: artifact.jar
+          target: orb-testing/upload-job/no-file-spec/
+          build-steps:
+            - run:
+                name: create sample artifact files
+                command: |
+                  echo "not a jar" > artifact1.jar
+                  echo "not a jar" > artifact2.jar
+          filters: *integration-master_filters
+
+      - artifactory/upload:
+          name: test-upload-file-spec-master
+          context: orb-publishing
+          use-file-spec: true
+          file-spec: spec.json
+          spec-vars: spec-pattern=*.jar;spec-target=orb-testing/upload-job/file-spec/
+          build-steps:
+            - run:
+                name: create sample artifact files
+                command: |
+                  echo "not a jar" > artifact1.jar
+                  echo "not a jar" > artifact2.jar
+          filters: *integration-master_filters
+
+      - artifactory/docker-publish:
+          name: test-publish-master
+          context: orb-publishing
+          docker-registry: orbdemos-docker.jfrog.io
+          repository: docker
+          build-name: hello-alpine
+          docker-tag: orbdemos-docker.jfrog.io/hello-world-default:1.0-${CIRCLE_BUILD_NUM}
+          pre-steps: [checkout, run: "cp docker-publish-assets/* ."]
+          filters: *integration-master_filters
+
+      - artifactory/docker-publish:
+          name: test-publish-custom-master
+          context: orb-publishing
+          docker-registry: orbdemos-docker.jfrog.io
+          repository: docker
+          build-name: hello-alpine-custom
+          docker-tag: orbdemos-docker.jfrog.io/hello-alpine-custom:1.0-${CIRCLE_BUILD_NUM}
+          docker-steps:
+            - run: echo ${DOCKERTAG}
+            - run: jfrog rt dl local-generic/artifact.jar docker-publish-assets/ --build-name=hello-alpine-custom --build-number=${CIRCLE_BUILD_NUM}
+            - run: docker build -t $DOCKERTAG docker-publish-assets
+          filters: *integration-master_filters
+
+      # patch, minor, or major publishing
+      - orb-tools/dev-promote-prod:
+          name: dev-promote-patch
+          context: orb-publishing
+          orb-name: circleci/artifactory
+          requires: *prod-deploy_requires
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /master-patch.*/
+
+      - orb-tools/dev-promote-prod:
+          name: dev-promote-minor
+          context: orb-publishing
+          orb-name: circleci/artifactory
+          release: minor
+          requires: *prod-deploy_requires
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /master-minor.*/
+
+      - orb-tools/dev-promote-prod:
+          name: dev-promote-major
+          context: orb-publishing
+          orb-name: circleci/artifactory
+          release: major
+          requires: *prod-deploy_requires
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /master-major.*/

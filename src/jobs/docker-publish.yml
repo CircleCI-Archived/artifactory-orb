@@ -1,61 +1,113 @@
+description: >
+  Log into a JFrog Docker registry, build a Docker image, and push it
+  to the registry
+
 parameters:
+  artifactory-user:
+    type: env_var_name
+    default: ARTIFACTORY_USER
+    description: >
+      Name of environment variable storing your Artifactory username
+
+  artifactory-key:
+    type: env_var_name
+    default: ARTIFACTORY_API_KEY
+    description: >
+      Name of environment variable storing your Artifactory API key
+
   docker-steps:
     type: steps
-    description: "Steps to Build and Tag image, defaults to `docker build . -t ${DOCKERTAG}`"
-    default: 
-      - run: docker build . -t ${DOCKERTAG}
+    default: [run: "docker build -t ${DOCKERTAG} ."]
+    description: >
+      Steps to Build and Tag image, defaults to `docker build
+      -t ${DOCKERTAG} .`
+
   docker-tag:
     type: string
-    description: "Fully qualified(including reigstry) tag to use when issuing docker push commands. 
-      Will also be exposed to 'docker-steps' as a ${DOCKERTAG}"
+    description: >
+      Fully qualified(including reigstry) tag to use when issuing
+      docker push commands. Will also be exposed to 'docker-steps'
+      as a ${DOCKERTAG}
+
   repository:
     type: string
-    description: "Remote repsository name in artifactory"
+    description: >
+      Remote repository name in JFrog Artifactory
+
   docker-registry:
     type: string
-    description: "The URL to use for docker login, depends on webServer configuration of Artifactory - https://www.jfrog.com/confluence/display/RTF/Getting+Started+with+Artifactory+as+a+Docker+Registry"
+    description: >
+      The URL to use for docker login, depends on web server configuration
+      of Artifactory: https://jfrog.com/confluence/display/RTF/Getting+Started+with+Artifactory+as+a+Docker+Registry
+
   build-name:
     type: string
-    default: '${CIRCLE_PROJECT_REPONAME}' 
+    default: '${CIRCLE_PROJECT_REPONAME}'
     description: "Name used in Artifactory Build Integration"
+
   build-number:
     type: string
-    default: '${CIRCLE_BUILD_NUM}' 
+    default: '${CIRCLE_BUILD_NUM}'
     description: "Build Number used in Artifactory Build Integration"
+
   build-integration:
     type: boolean
     default: true
     description: "Should Artifactory 'Build Publish' task be executed"
+
   include-git:
     type: boolean
     default: true
+    description: >
+      Collect git details as part of Build Integration? For details, see
+      https://jfrog.com/confluence/display/CLI/CLI+for+JFrog+Artifactory#CLIforJFrogArtifactory-BuildIntegration-AddingGitInformation
+
   include-env:
     type: boolean
     default: true
+    description: >
+      Collect environment variable details as part of Build Integration? For
+      details, see https://jfrog.com/confluence/display/CLI/CLI+for+JFrog+Artifactory#CLIforJFrogArtifactory-BuildIntegration-CollectingEnvironmentVariables
+
   dependency-steps:
     type: steps
-    description: "Include any additional steps to collect dependency information before `jfrog rt bp` is executed."
     default: []
-machine: true
+    description: >
+      Include any additional steps to collect dependency information
+      before `jfrog rt bp` is executed.
+
+executor: machine
+
 environment:
   RAWTAG: <<parameters.docker-tag>>
+
 steps:
   - checkout
   - install
   - configure
-  # if user passed a variable in the <<docker-tag>> it wont be interpolated. We process to a new safe variable.
-  - run: eval echo "export DOCKERTAG=${RAWTAG}" >> $BASH_ENV
-  - steps: <<parameters.dependency-steps>>
-  - steps: << parameters.docker-steps >>
-  - docker-publish:
+
+  - docker-login:
+      artifactory-user: <<parameters.artifactory-user>>
+      artifactory-key: <<parameters.artifactory-key>>
       docker-registry: <<parameters.docker-registry>>
+
+  # if user passed a variable in the <<docker-tag>>, it won't be
+  # interpolated. We process to a new safe variable.
+
+  - run: eval echo "export DOCKERTAG=${RAWTAG}" >> $BASH_ENV
+
+  - steps: <<parameters.dependency-steps>>
+
+  - steps: << parameters.docker-steps >>
+
+  - docker-publish:
       build-name: <<parameters.build-name>>
       build-number: <<parameters.build-number>>
       docker-tag: <<parameters.docker-tag>>
       repository: <<parameters.repository>>
-      build-integration: <<parameters.build-integration>>
+
   - when:
-      condition: <<parameters.build-integration>> 
+      condition: <<parameters.build-integration>>
       steps:
         - build-integration:
             build-name: <<parameters.build-name>>

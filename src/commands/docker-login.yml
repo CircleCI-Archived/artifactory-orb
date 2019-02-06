@@ -1,0 +1,27 @@
+description: >
+  Log into a JFrog (or other) Docker registry
+
+parameters:
+  artifactory-user:
+    type: env_var_name
+    default: ARTIFACTORY_USER
+    description: >
+      Name of environment variable storing your Artifactory username
+
+  artifactory-key:
+    type: env_var_name
+    default: ARTIFACTORY_API_KEY
+    description: >
+      Name of environment variable storing your Artifactory API key
+
+  docker-registry:
+    type: string
+    description: >
+      The URL to use for docker login, depends on web server configuration
+      of Artifactory: https://jfrog.com/confluence/display/RTF/Getting+Started+with+Artifactory+as+a+Docker+Registry
+
+steps:
+  - run:
+      name: Log into JFrog Docker registry
+      command: |
+        docker login -u $<<parameters.artifactory-user>> -p $<<parameters.artifactory-key>> <<parameters.docker-registry>>

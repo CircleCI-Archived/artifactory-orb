@@ -1,70 +1,121 @@
+description: Upload artifacts to Artifactory
+
 parameters:
   docker:
     type: string
-    default: 'circleci/openjdk:8' 
-    description: "Docker image to use for build"
-  file-spec:
-    type: string
-    default: ''
-    description: "Optional: Path to a File Spec containing additional configuration"
+    default: circleci/openjdk:8
+    description: Docker image to use for build
+
   build-steps:
     type: steps
     default: []
-    description: "Steps to generate artifacts. Alternately provide `workspace-path`"
+    description: >
+      Steps to generate artifacts. Alternately provide `workspace-path`.
+
   workspace-path:
     type: string
-    default: ''
-    description: "The key of a workflow workspace which contains artifact. Alternately provide `build-steps`"
+    default: ""
+    description: >
+      The key of a workflow workspace which contains artifacts.
+      Alternately provide `build-steps`
+
+  use-file-spec:
+    type: boolean
+    default: false
+    description: >
+      Use a JFrog JSON File Spec to configure Artifactory upload, rather
+      than inline command arguments/options. Defaults to false. For details,
+      see https://jfrog.com/confluence/display/CLI/CLI+for+JFrog+Artifactory#CLIforJFrogArtifactory-UsingFileSpecs
+
+  file-spec:
+    type: string
+    default: ""
+    description: >
+      Absolute or relative path to a JFrog JSON File Spec. To provide a
+      File Spec, the `use-file-spec` parameter must be set to `true`.
+
+  spec-vars:
+    type: string
+    default: ""
+    description: >
+      List of variables in the form of "key1=value1;key2=value2;..." to be
+      replaced in the File Spec. `use-file-spec` must be set to `true`. In
+      the File Spec, the variables should be used as follows: ${key1}.
+
   source:
     type: string
-    description: "The local pattern of files to upload"
+    default: ""
+    description: >
+      Absolute or relative path to artifacts which should be uploaded to
+      Artifactory. Specify multiple artifacts by using wildcards.
+
   target:
     type: string
-    description: "The remote path in artifactory, using pattern [repository_name]/[repository_path]"
+    default: ""
+    description: >
+      Target path in Artifactory for uploads, in the following format:
+      [repository_name]/[repository_path]
+
   build-name:
     type: string
-    default: '${CIRCLE_PROJECT_REPONAME}' 
-    description: "Name used in Artifactory Build Integration"
+    default: ${CIRCLE_PROJECT_REPONAME}
+    description: >
+      Artifactory build name, defaults to the value of
+      $CIRCLE_PROJECT_REPONAME
+
   build-number:
     type: string
-    default: '${CIRCLE_BUILD_NUM}' 
-    description: "Build Number used in Artifactory Build Integration"
+    default: ${CIRCLE_BUILD_NUM}
+    description: >
+      Artifactory build number, defaults to the value of $CIRCLE_BUILD_NUM
+
   build-integration:
     type: boolean
     default: true
     description: "Should Artifactory 'Build Publish' task be executed"
+
   include-git:
     type: boolean
     default: true
+
   include-env:
     type: boolean
     default: true
-docker: 
+
+docker:
   - image: <<parameters.docker>>
+
 steps:
   - checkout
+
   - when:
-      condition: <<parameters.build-steps>> 
-      steps: << parameters.build-steps >>
+      condition: <<parameters.build-steps>>
+      steps: <<parameters.build-steps>>
+
   - when:
-      condition: <<parameters.workspace-path>> 
-      steps: 
+      condition: <<parameters.workspace-path>>
+      steps:
         - attach_workspace:
-            at: <<parameters.workspace-path>> 
+            at: <<parameters.workspace-path>>
+
   - install
+
   - configure
+
   - upload:
+      use-file-spec: <<parameters.use-file-spec>>
+      file-spec: <<parameters.file-spec>>
+      spec-vars: <<parameters.spec-vars>>
       source: <<parameters.source>>
       target: <<parameters.target>>
-      file-spec: <<parameters.file-spec>> 
       build-name: <<parameters.build-name>>
       build-number: <<parameters.build-number>>
+
   - when:
-      condition: <<parameters.build-integration>> 
+      condition: <<parameters.build-integration>>
       steps:
         - build-integration:
             build-name: <<parameters.build-name>>
             build-number: <<parameters.build-number>>
             include-git: <<parameters.include-git>>
             include-env: <<parameters.include-env>>
-

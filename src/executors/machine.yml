@@ -1,0 +1,5 @@
+description: >
+  A machine executor that can run Docker commands:
+  https://circleci.com/docs/2.0/executor-types/#using-machine
+
+machine: true

@@ -1,19 +1,32 @@
+description: >
+  Push an image to a JFrog Docker registry
+
 parameters:
-  docker-registry:
-    type: string
   docker-tag:
     type: string
+    description: >
+      Full named reference to Docker image (repo/name:tag)
+
   repository:
     type: string
+    description: >
+      Remote repository name in JFrog Artifactory
+
   build-name:
     type: string
+    default: ${CIRCLE_PROJECT_REPONAME}
+    description: >
+      Artifactory build name, defaults to the value of
+      $CIRCLE_PROJECT_REPONAME
+
   build-number:
     type: string
-  build-integration:
-    type: boolean
+    default: ${CIRCLE_BUILD_NUM}
+    description: >
+      Artifactory build number, defaults to the value of $CIRCLE_BUILD_NUM
+
 steps:
   - run:
-      name: Docker Push to JFrog Registry
+      name: Docker push to JFrog registry
       command: |
-        docker login -u ${ARTIFACTORY_USER} -p ${ARTIFACTORY_API_KEY} <<parameters.docker-registry>>
         jfrog rt dp <<parameters.docker-tag>> <<parameters.repository>> --build-name=<<parameters.build-name>> --build-number=<<parameters.build-number>>

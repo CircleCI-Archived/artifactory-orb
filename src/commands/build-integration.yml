@@ -1,27 +1,49 @@
+description: >
+  Publish build information to JFrog Artifactory with `jfrog rt bp`
+
 parameters:
   include-git:
     type: boolean
     default: true
+    description: >
+      Collect git details as part of Build Integration? For details, see
+      https://jfrog.com/confluence/display/CLI/CLI+for+JFrog+Artifactory#CLIforJFrogArtifactory-BuildIntegration-AddingGitInformation
+
   include-env:
     type: boolean
     default: true
+    description: >
+      Collect environment variable details as part of Build Integration? For
+      details, see https://jfrog.com/confluence/display/CLI/CLI+for+JFrog+Artifactory#CLIforJFrogArtifactory-BuildIntegration-CollectingEnvironmentVariables
+
   build-name:
     type: string
+    default: ${CIRCLE_PROJECT_REPONAME}
+    description: >
+      Artifactory build name, defaults to the value of
+      $CIRCLE_PROJECT_REPONAME
+
   build-number:
     type: string
+    default: ${CIRCLE_BUILD_NUM}
+    description: >
+      Artifactory build number, defaults to the value of $CIRCLE_BUILD_NUM
+
 steps:
   - when:
-      condition: <<parameters.include-git>> 
+      condition: <<parameters.include-git>>
       steps:
         - run:
-            name: Collect git Details with JFrog CLI
+            name: Collect git details with JFrog CLI
             command: jfrog rt bag <<parameters.build-name>> <<parameters.build-number>>
+
   - when:
-      condition: <<parameters.include-env>> 
+      condition: <<parameters.include-env>>
       steps:
         - run:
-            name: Collect Env. Details with JFrog CLI
+            name: Collect environment variable details with JFrog CLI
             command: jfrog rt bce <<parameters.build-name>> <<parameters.build-number>>
+
   - run:
-      name: Publish Build Details Details with JFrog CLI
+      name: Publish build details with JFrog CLI
       command: jfrog rt bp <<parameters.build-name>> <<parameters.build-number>>

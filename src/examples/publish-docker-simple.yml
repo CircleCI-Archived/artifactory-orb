@@ -1,0 +1,19 @@
+description: >
+  Use the `docker-publish` job to build and tag a Docker image, then
+  push it to a JFrog Docker registry. This example assumes that your
+  Dockerfile is stored in the root of your repository.
+
+usage:
+  version: 2.1
+
+  orbs:
+    artifactory: circleci/artifactory@1.0.0
+
+  workflows:
+    simple-docker-example:
+      jobs:
+        - artifactory/docker-publish:
+            name: Docker Publish Simple
+            docker-registry: orbdemos-docker-local.jfrog.io
+            repository: docker-local
+            docker-tag: orbdemos-docker-local.jfrog.io/hello-world:1.0-${CIRCLE_BUILD_NUM}
