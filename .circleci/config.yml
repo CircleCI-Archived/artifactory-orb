@@ -3,7 +3,7 @@ version: 2.1
 orbs:
   artifactory: circleci/artifactory@dev:alpha
   cli: circleci/circleci-cli@0.1.2
-  orb-tools: circleci/orb-tools@7.3.0
+  orb-tools: circleci/orb-tools@8.1.0
 
 executors:
   node:
@@ -88,6 +88,7 @@ workflows:
           name: trigger-integration-dev
           context: orb-publishing
           ssh-fingerprints: 31:25:5b:d4:ce:5b:1f:81:fe:b3:c2:b5:ac:f2:55:8f
+          cleanup-tags: true
           requires:
             - orb-tools/publish-dev
           filters:
@@ -98,6 +99,7 @@ workflows:
           name: trigger-integration-master
           context: orb-publishing
           ssh-fingerprints: 31:25:5b:d4:ce:5b:1f:81:fe:b3:c2:b5:ac:f2:55:8f
+          cleanup-tags: true
           tag: master
           requires:
             - orb-tools/publish-dev
