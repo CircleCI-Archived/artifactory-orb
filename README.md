@@ -1,4 +1,4 @@
-# Artifactory Orb ![CircleCI status](https://circleci.com/gh/CircleCI-Public/artifactory-orb.svg "CircleCI status") [![CircleCI Orb Version](https://img.shields.io/badge/endpoint.svg?url=https://orb-badge.cci.feliciano.tech/circleci/artifactory)](https://circleci.com/orbs/registry/orb/circleci/artifactory)
+# Artifactory Orb ![CircleCI status](https://circleci.com/gh/CircleCI-Public/artifactory-orb.svg "CircleCI status") [![CircleCI Orb Version](https://img.shields.io/badge/endpoint.svg?url=https://orb-badge.cci.feliciano.tech/circleci/artifactory)](https://circleci.com/orbs/registry/orb/circleci/artifactory) [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/CircleCI-Public/artifactory-orb/master/LICENSE) [![CircleCI Community](https://img.shields.io/badge/community-CircleCI%20Discuss-343434.svg)](https://discuss.circleci.com/c/orbs)
 
 CircleCI Artifactory orb created in partnership with JFrog.
 
