@@ -16,9 +16,10 @@ See [orb registry listing](https://circleci.com/orbs/registry/orb/circleci/artif
 ## Contributing
 [Issues](https://github.com/CircleCI-Public/artifactory-orb/issues) and [pull requests](https://github.com/CircleCI-Public/artifactory-orb/pulls) welcome!
 
-This orb follows the general integration testing guidelines shown in this example:
+This orb follows the general integration testing guidelines shown in [this example](https://github.com/circleci-public/orb-tools-orb#examples) and outlined in the following blog posts:
 
-https://github.com/circleci-public/orb-tools-orb#examples
+- https://circleci.com/blog/creating-automated-build-test-and-deploy-workflows-for-orbs
+- https://circleci.com/blog/creating-automated-build-test-and-deploy-workflows-for-orbs-part-2
 
 ### Orbs Authoring/Contributing
 See [Using Orbs](https://circleci.com/docs/2.0/using-orbs) and [Creating Orbs](https://circleci.com/docs/2.0/creating-orbs) to get started.
