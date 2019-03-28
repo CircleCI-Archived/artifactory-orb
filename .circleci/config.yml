@@ -2,8 +2,7 @@ version: 2.1
 
 orbs:
   artifactory: circleci/artifactory@dev:alpha
-  cli: circleci/circleci-cli@0.1.2
-  orb-tools: circleci/orb-tools@8.1.0
+  orb-tools: circleci/orb-tools@8.5.0
 
 executors:
   node:
@@ -66,7 +65,12 @@ integration-master_filters: &integration-master_filters
     only: /master-.*/
 
 prod-deploy_requires: &prod-deploy_requires
-  [test-all-commands-master, test-upload-master, test-publish-master, test-publish-custom-master]
+  [
+    test-all-commands-master,
+    test-upload-master,
+    test-publish-master,
+    test-publish-custom-master
+  ]
 
 workflows:
   lint_pack-validate_publish-dev:
