@@ -17,7 +17,7 @@ parameters:
       type: string
       default: ""
       description: >
-        Target path in Artifactory for uploads, in the following format:
+        Target path in Artifactory for promotions, in the following format:
         [repository_name]/[repository_path]
 
     build-name:

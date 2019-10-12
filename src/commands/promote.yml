@@ -1,6 +1,6 @@
 description: >
   Promote assets on Artifactory via `jfrog rt build-promote`. For details, see
-  https://jfrog.com/confluence/display/CLI/CLI+for+JFrog+Artifactory#CLIforJFrogArtifactory-UploadingFiles
+  https://www.jfrog.com/confluence/display/CLI/CLI+for+JFrog+Artifactory#CLIforJFrogArtifactory-BuildIntegration-PromotingaBuild
 
 parameters:
   comment:
@@ -19,7 +19,7 @@ parameters:
     type: string
     default: ""
     description: >
-      Target path in Artifactory for uploads, in the following format:
+      Target path in Artifactory for promotions, in the following format:
       [repository_name]/[repository_path]
 
   build-name:
