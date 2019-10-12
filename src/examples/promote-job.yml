@@ -1,5 +1,5 @@
 description: >
-  Use the `upload` job to upload artifacts to JFrog's Artifactory
+  Use the `promote` job to promote artifacts in JFrog's Artifactory
 
 usage:
   version: 2.1
@@ -10,9 +10,13 @@ usage:
   workflows:
     publish:
       jobs:
-        - artifactory/upload:
-            name: Publish Maven Jar
-            source: test/artifact.jar
-            target: repo/path
-            build-steps:
-              - run: mvn install -B
+        - artifactory/docker-publish:
+            name: Docker Publish Simple
+            docker-registry: orbdemos-docker-local.jfrog.io
+            repository: docker-build
+            docker-tag: orbdemos-docker-local.jfrog.io/hello-world:1.0-${CIRCLE_BUILD_NUM}
+        - artifactory/promote:
+            name: Promote a build
+            build-name: "hello-world"
+            build-number: "1.0-${CIRCLE_BUILD_NUM}"
+            taget: docker-local

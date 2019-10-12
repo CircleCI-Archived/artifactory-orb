@@ -11,6 +11,8 @@ usage:
   workflows:
     simple-docker-example:
       jobs:
+        - artifactory/install
+        - artifactory/configure
         - artifactory/docker-publish:
             name: Docker Publish Simple
             docker-registry: orbdemos-docker-local.jfrog.io
