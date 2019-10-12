@@ -1,0 +1,48 @@
+description: Promote artifacts in Artifactory
+
+parameters:
+    comment:
+      type: string
+      default: ""
+      description: >
+        Optional comment for the promoted build.
+
+    status:
+      type: string
+      default: ""
+      description: >
+        Optional status for the promoted build.
+
+    target:
+      type: string
+      default: ""
+      description: >
+        Target path in Artifactory for uploads, in the following format:
+        [repository_name]/[repository_path]
+
+    build-name:
+      type: string
+      default: ${CIRCLE_PROJECT_REPONAME}
+      description: >
+        Artifactory build name, defaults to the value of
+        $CIRCLE_PROJECT_REPONAME
+
+    build-number:
+      type: string
+      default: ${CIRCLE_BUILD_NUM}
+      description: >
+        Artifactory build number, defaults to the value of $CIRCLE_BUILD_NUM
+
+steps:
+  - checkout
+
+  - install
+
+  - configure
+
+  - promote:
+      comment: <<parameters.comment>>
+      status: <<parameters.status>>
+      target: <<parameters.target>>
+      build-name: <<parameters.build-name>>
+      build-number: <<parameters.build-number>>
