@@ -2,6 +2,14 @@
 
 CircleCI Artifactory orb created in partnership with JFrog.
 
+Table of Contents
+=================
+* [Features](#features)
+  * [Examples](#examples)
+  * [Parameters/Configuration](#parametersconfiguration)
+* [Contributing](#contributing)
+  * [Orbs Authoring/Contributing](#orbs-authoringcontributing)
+  
 ## Features
 This orb supports the major features of the [JFrog CLI](https://jfrog.com/confluence/display/CLI/CLI+for+JFrog+Artifactory), including uploading artifacts, build integration (collecting environment info, etc.), and publishing Docker images.
 
