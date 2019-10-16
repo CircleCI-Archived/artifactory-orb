@@ -2,6 +2,9 @@
 
 CircleCI Artifactory orb created in partnership with JFrog.
 
+# MOVING: THIS REPO WILL SOON BE REMOVED
+Jfrog will be taking up all future development of this orb. You can find the orb and contribute here: https://github.com/jfrog/artifactory-orb/
+
 ## Features
 This orb supports the major features of the [JFrog CLI](https://jfrog.com/confluence/display/CLI/CLI+for+JFrog+Artifactory), including uploading artifacts, build integration (collecting environment info, etc.), and publishing Docker images.
 
